@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PG Manager — Payments</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* === GLOBAL THEME (same as Dashboard) === */
+    body {
+      background: linear-gradient(45deg,#020617,#0f172a 50%,#1e1b4b);
+      min-height:100vh;
+      color:#e6eef8;
+      font-family: Inter, ui-sans-serif, system-ui;
+    }
+
+    /* SIDEBAR (Dashboard-style) */
+    .sidebar {
+      width: 280px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(14px);
+      border-right: 1px solid rgba(255,255,255,0.08);
+      padding: 28px 20px;
+      z-index: 40;
+      box-shadow: 4px 0px 18px rgba(0,0,0,0.4);
+    }
+    .nav-btn {
+      padding: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      color: #e5e7eb;
+      transition: 0.25s;
+      margin-bottom:8px;
+    }
+    .nav-btn:hover {
+      background: rgba(59,130,246,0.12);
+      transform: translateX(5px);
+    }
+    .nav-btn.active {
+      background: rgba(59,130,246,0.28);
+      border: 1px solid rgba(59,130,246,0.45);
+      color: #60a5fa;
+      font-weight: 600;
+    }
+
+    /* MAIN CONTENT shifted right to make room for sidebar */
+    .content {
+      margin-left: 300px;
+      padding: 40px 50px;
+      position: relative;
+      z-index: 20;
+    }
+
+    /* Floating Building (same asset path as dashboard) */
+    .bg-building {
+      position: fixed;
+      right: 5%;
+      top: 12%;
+      width: 380px;
+      opacity: 0.8;
+      pointer-events: none;
+      filter: blur(1px);
+      z-index: 1;
+    }
+
+    /* === Payments page components (kept original style + small adjustments) === */
+    .glass-card {
+      background: rgba(255,255,255,0.06);
+      border-radius:18px;
+      padding:22px;
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(255,255,255,0.06);
+    }
+    .ctl {
+      background: rgba(2,6,23,0.6);
+      border:1px solid rgba(255,255,255,0.06);
+      padding:10px 12px;
+      border-radius:10px;
+      color:#e6eef8;
+      width:100%;
+    }
+    .muted { color:#9aa7bd; font-size:13px; }
+    .btn { background:#2563eb; color:white; padding:10px 14px; border-radius:10px; cursor:pointer; }
+    table { width:100%; border-collapse:collapse; }
+    td, th { padding:10px 12px; border-bottom: 1px dashed rgba(255,255,255,0.03); text-align:left; vertical-align: middle; }
+
+    /* modal */
+    .modal-backdrop { background: rgba(2,6,23,0.6); position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:60; }
+    .modal-glass { background: rgba(255,255,255,0.04); border-radius:14px; padding:20px; width:calc(100% - 48px); max-width:520px; color: #e6eef8; border:1px solid rgba(255,255,255,0.06); backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+    .btn-close { background:#7c3aed; color:white; padding:8px 12px; border-radius:10px; cursor:pointer; }
+    .inline-warning { color:#ff6961; margin-top:10px; font-weight:600; }
+
+    /* responsive tweaks */
+    @media (max-width:900px){
+      .content { margin-left: 20px; padding: 20px; }
+      .bg-building { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR (Dashboard-style fixed left) -->
+  <aside class="sidebar" role="navigation" aria-label="Main navigation">
+    <h2 class="text-xl font-extrabold mb-6">Raghavendra PG</h2>
+    <div class="nav-btn" onclick="location.href='dashboard.html'">📊 Dashboard</div>
+    <div class="nav-btn" onclick="location.href='tenants.html'">👥 Tenants</div>
+    <div class="nav-btn" onclick="location.href='beds.html'">🛏 Beds</div>
+    <div class="nav-btn active" onclick="location.href='payments.html'">💰 Payments</div>
+  </aside>
+
+  <!-- FLOATING BUILDING IMAGE (same as dashboard) -->
+  <img class="bg-building" src="/mnt/data/f3faebb7-6f23-401f-8907-68f4ba94de61.png" alt="building" />
+
+  <!-- MAIN CONTENT (shifted to the right) -->
+  <main class="content">
+
+    <h1 class="text-4xl font-extrabold mb-6">Payments</h1>
+
+    <section class="grid grid-cols-3 gap-6 mb-8">
+      <!-- FORM -->
+      <div class="col-span-2 glass-card">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h2 class="text-xl font-semibold">Record Payment</h2>
+            <div class="muted">Rule A: deposit/maintenance only for first payment (if tenant has no prior payments).</div>
+          </div>
+          <div class="muted">Auto date & rent fill</div>
+        </div>
+
+        <form id="paymentForm" class="space-y-4" autocomplete="off">
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="text-sm muted">Tenant *</label>
+              <select id="tenantSel" class="ctl" required></select>
+            </div>
+
+            <div>
+              <label class="text-sm muted">Month *</label>
+              <select id="monthSel" class="ctl" required>
+                <option value="">Select month</option>
+                <option>January</option><option>February</option><option>March</option>
+                <option>April</option><option>May</option><option>June</option>
+                <option>July</option><option>August</option><option>September</option>
+                <option>October</option><option>November</option><option>December</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-sm muted">Year *</label>
+              <input id="yearSel" type="number" class="ctl" value="" placeholder="2025" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="text-sm muted">Rent (₹)</label>
+              <input id="rentAmount" class="ctl" type="number" required inputmode="numeric" />
+            </div>
+
+            <div>
+              <label class="text-sm muted">Deposit (₹)</label>
+              <input id="depositAmount" class="ctl" type="number" value="0" min="0">
+            </div>
+
+            <div>
+              <label class="text-sm muted">Maintenance (₹)</label>
+              <input id="maintenanceAmount" class="ctl" type="number" value="0" min="0">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="text-sm muted">Date</label>
+              <input id="paymentDate" class="ctl" type="date">
+            </div>
+
+            <div>
+              <label class="text-sm muted">Method</label>
+              <select id="methodSel" class="ctl">
+                <option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Card</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-sm muted">Status</label>
+              <select id="statusSel" class="ctl">
+                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <button id="savePaymentBtn" type="submit" class="py-3 px-6 btn">Save Payment</button>
+            <!-- inline red warning (hidden by default) -->
+            <div id="inlineWarning" class="inline-warning" style="display:none;"></div>
+          </div>
+        </form>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="glass-card p-6">
+        <h3 class="text-lg font-semibold mb-3">Quick Summary</h3>
+
+        <div class="mb-4">
+          <div class="muted">Pending months</div>
+          <div id="pendingCount" class="text-3xl font-bold">0</div>
+        </div>
+
+        <div class="mb-4">
+          <div class="muted">Paid members this month</div>
+          <div id="paidMembers" class="text-3xl font-bold">0</div>
+        </div>
+
+        <div class="mb-4">
+          <div class="muted">Not-paid members this month</div>
+          <div id="notPaidMembers" class="text-3xl font-bold">0</div>
+        </div>
+
+        <div class="mb-4">
+          <div class="muted">Rent collected this month</div>
+          <div id="collectedThisMonth" class="text-3xl font-bold">₹ 0</div>
+        </div>
+
+        <div>
+          <div class="muted">Occupied beds</div>
+          <div id="occupiedBeds" class="text-3xl font-bold">0</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card p-4">
+      <h3 class="text-lg font-semibold mb-4">Payment History</h3>
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Tenant</th><th>Room</th><th>Month</th><th>Details</th><th>Method</th><th>Date</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal (hidden by default) -->
+  <div id="appModal" style="display:none;" aria-hidden="true">
+    <div class="modal-backdrop" role="dialog" aria-modal="true">
+      <div class="modal-glass">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 id="modalTitle" class="text-lg font-semibold">Message</h3>
+            <p id="modalBody" class="muted mt-2"></p>
+          </div>
+          <div>
+            <button id="modalClose" class="btn-close">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /* ============= CONFIG ============= */
+  const API_BASE = "https://vlqf2jbdvl.execute-api.ap-south-1.amazonaws.com";
+  const paymentsUrl = `${API_BASE}/payments`;
+  const tenantsUrl = `${API_BASE}/tenants`;
+
+  /* ============= DOM ============= */
+  const tenantSel = document.getElementById('tenantSel');
+  const rentAmount = document.getElementById('rentAmount');
+  const monthSel = document.getElementById('monthSel');
+  const yearSel = document.getElementById('yearSel');
+  const depositAmount = document.getElementById('depositAmount');
+  const maintenanceAmount = document.getElementById('maintenanceAmount');
+  const paymentDate = document.getElementById('paymentDate');
+  const methodSel = document.getElementById('methodSel');
+  const statusSel = document.getElementById('statusSel');
+  const paymentsTbody = document.getElementById('paymentsTbody');
+  const pendingCount = document.getElementById('pendingCount');
+  const collectedThisMonth = document.getElementById('collectedThisMonth');
+  const occupiedBedsEl = document.getElementById('occupiedBeds');
+  const paidMembersEl = document.getElementById('paidMembers');
+  const notPaidMembersEl = document.getElementById('notPaidMembers');
+  const savePaymentBtn = document.getElementById('savePaymentBtn');
+  const inlineWarning = document.getElementById('inlineWarning');
+
+  const modal = document.getElementById('appModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+  const modalClose = document.getElementById('modalClose');
+
+  let tenants = []; // normalized tenant list
+
+  /* ============= UTIL ============= */
+  function formatCurrency(n){ return '₹ ' + (Number(n)||0).toLocaleString(); }
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function monthNameFromIndex(i){ return ["January","February","March","April","May","June","July","August","September","October","November","December"][i]; }
+
+  (function setDefaults(){
+    const now = new Date();
+    yearSel.value = now.getFullYear();
+    paymentDate.value = todayISO();
+    monthSel.value = monthNameFromIndex(now.getMonth());
+  })();
+
+  /* ============= MODAL & INLINE WARNING ============= */
+  function showModal(title, message){
+    modalTitle.textContent = title || 'Notice';
+    modalBody.textContent = message || '';
+    modal.style.display = 'block';
+    modal.setAttribute('aria-hidden', 'false');
+    // focus the close button for accessibility
+    modalClose.focus();
+  }
+  function hideModal(){
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+  }
+  modalClose.addEventListener('click', hideModal);
+  // allow ESC to close
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && modal.style.display === 'block') hideModal();
+  });
+
+  // inline red warning under Save button
+  let inlineTimeout = null;
+  function showInlineWarning(msg, persist=false){
+    inlineWarning.textContent = msg || '';
+    inlineWarning.style.display = msg ? 'block' : 'none';
+    // if not persistent, hide after 6s
+    if(inlineTimeout) clearTimeout(inlineTimeout);
+    if(!persist && msg){
+      inlineTimeout = setTimeout(()=>{ inlineWarning.style.display='none'; }, 6000);
+    }
+  }
+  function clearInlineWarning(){
+    if(inlineTimeout) clearTimeout(inlineTimeout);
+    inlineWarning.style.display = 'none';
+  }
+
+  /* ============= LOAD TENANTS ============= */
+  async function loadTenants(){
+    tenantSel.innerHTML = '<option value="">Loading tenants…</option>';
+    try {
+      const res = await fetch(tenantsUrl);
+      const data = await res.json();
+      const raw = Array.isArray(data) ? data : (data.Items || []);
+      tenants = raw.map(t=>{
+        const normalized = Object.assign({}, t);
+        const idVal = t.tenantId || t.tenantID || t.id;
+        normalized.tenantId = idVal;
+        normalized.tenantID = idVal;
+        return normalized;
+      });
+      tenantSel.innerHTML = '<option value="">Select tenant</option>';
+      tenants.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.tenantId || '';
+        opt.textContent = `${t.name || 'Unknown'} — ${t.room || ''}`;
+        tenantSel.appendChild(opt);
+      });
+      updateSummary(); // show occupied
+    } catch(err){
+      console.error('loadTenants error', err);
+      tenantSel.innerHTML = '<option value="">Could not load tenants</option>';
+    }
+  }
+
+  /* when tenant selected: fill rent and enforce first-payment extras */
+  tenantSel.addEventListener('change', async () => {
+    clearInlineWarning();
+    const tid = tenantSel.value;
+    if(!tid){
+      rentAmount.value = '';
+      depositAmount.value = 0;
+      maintenanceAmount.value = 0;
+      depositAmount.disabled = false;
+      maintenanceAmount.disabled = false;
+      return;
+    }
+
+    const tenant = tenants.find(t => String(t.tenantId) === String(tid) || String(t.tenantID) === String(tid));
+    if(tenant){
+      if(tenant.rent !== undefined && tenant.rent !== null && String(tenant.rent).trim() !== "") {
+        rentAmount.value = Number(tenant.rent);
+      } else {
+        rentAmount.value = '';
+      }
+    }
+
+    try {
+      const res = await fetch(paymentsUrl);
+      const all = await res.json();
+      const payments = Array.isArray(all) ? all : (all.Items || []);
+      const hasAny = payments.some(p => String(p.tenantId) === String(tid) || String(p.tenantID) === String(tid));
+      if(hasAny){
+        depositAmount.value = 0; depositAmount.disabled = true;
+        maintenanceAmount.value = 0; maintenanceAmount.disabled = true;
+      } else {
+        depositAmount.disabled = false;
+        maintenanceAmount.disabled = false;
+      }
+    } catch(e){
+      console.error('error checking payments', e);
+      depositAmount.disabled = false;
+      maintenanceAmount.disabled = false;
+    }
+  });
+
+  /* ============= LOAD PAYMENTS + SUMMARY ============= */
+  async function loadPaymentsAndSummary(){
+    paymentsTbody.innerHTML = '<tr><td colspan="7">Loading…</td></tr>';
+    try {
+      const res = await fetch(paymentsUrl);
+      const data = await res.json();
+      const payments = Array.isArray(data) ? data : (data.Items || []);
+      payments.sort((a,b) => (b.createdAt||b.date||'').localeCompare(a.createdAt||a.date||''));
+      renderPaymentsTable(payments);
+      updateSummary(payments);
+    } catch(err){
+      console.error('loadPayments error', err);
+      paymentsTbody.innerHTML = '<tr><td colspan="7">Error loading payments</td></tr>';
+    }
+  }
+  function renderPaymentsTable(list){
+    if(!list || list.length === 0){
+      paymentsTbody.innerHTML = '<tr><td colspan="7">No payments</td></tr>'; return;
+    }
+    paymentsTbody.innerHTML = '';
+    list.forEach(p => {
+      const tr = document.createElement('tr');
+      const tenantName = p.tenantName || p.name || 'undefined';
+      const room = p.room || p.roomNo || p.roomNumber || 'undefined';
+      tr.innerHTML = `
+        <td>${escapeHtml(tenantName)}</td>
+        <td>${escapeHtml(room)}</td>
+        <td>${escapeHtml(p.month || '')} ${escapeHtml(p.year || '')}</td>
+        <td>Rent: ${formatCurrency(p.rent)}<br>Dep: ${formatCurrency(p.deposit)}<br>Maint: ${formatCurrency(p.maintenance)}</td>
+        <td>${escapeHtml(p.method || '')}</td>
+        <td>${escapeHtml((p.date || '').slice(0,10) || '')}</td>
+        <td style="color:${p.status === 'paid' ? '#8ef59b' : '#ffd6a5'}">${escapeHtml(p.status || '')}</td>
+      `;
+      paymentsTbody.appendChild(tr);
+    });
+  }
+  async function updateSummary(paymentsArg){
+    let payments = paymentsArg || [];
+    if(!payments || payments.length === 0){
+      try {
+        const res = await fetch(paymentsUrl);
+        const data = await res.json();
+        payments = Array.isArray(data) ? data : (data.Items || []);
+      } catch(e){
+        payments = [];
+      }
+    }
+
+    const pending = payments.filter(p => p.status !== 'paid').length;
+    pendingCount.innerText = pending;
+
+    const now = new Date();
+    const curMonthName = now.toLocaleString('en', { month: 'long' });
+    const curYear = now.getFullYear();
+
+    const collected = payments
+      .filter(p => p.status === 'paid' && String(p.month) === String(curMonthName) && Number(p.year) === Number(curYear))
+      .reduce((s, r) => s + (Number(r.rent)||0) + (Number(r.maintenance)||0), 0);
+    collectedThisMonth.innerText = formatCurrency(collected);
+
+    occupiedBedsEl.innerText = Array.isArray(tenants) ? tenants.length : 0;
+
+    const paidSet = new Set();
+    payments.forEach(p => {
+      if(p.status === 'paid' && String(p.month) === String(curMonthName) && Number(p.year) === Number(curYear)){
+        if(p.tenantId) paidSet.add(String(p.tenantId));
+        else if(p.tenantID) paidSet.add(String(p.tenantID));
+      }
+    });
+    const totalTenants = Array.isArray(tenants) ? tenants.length : 0;
+    const paidMembers = paidSet.size;
+    paidMembersEl.innerText = paidMembers;
+    notPaidMembersEl.innerText = Math.max(0, totalTenants - paidMembers);
+  }
+
+  /* ============= SAVE PAYMENT ============= */
+  document.getElementById('paymentForm').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    clearInlineWarning();
+    savePaymentBtn.disabled = true; savePaymentBtn.innerText = 'Saving...';
+
+    const selectedId = tenantSel.value;
+    if(!selectedId){
+      showModal('Validation', 'Select tenant.');
+      savePaymentBtn.disabled=false; savePaymentBtn.innerText='Save Payment'; return;
+    }
+
+    const tenant = tenants.find(t => String(t.tenantId) === String(selectedId) || String(t.tenantID) === String(selectedId));
+    if(!tenant){
+      showModal('Validation', 'Invalid tenant.');
+      savePaymentBtn.disabled=false; savePaymentBtn.innerText='Save Payment'; return;
+    }
+
+    const month = monthSel.value;
+    const year = Number(yearSel.value);
+    if(!month || !year){
+      showModal('Validation', 'Select month and year.');
+      savePaymentBtn.disabled=false; savePaymentBtn.innerText='Save Payment'; return;
+    }
+
+    // CLIENT-SIDE DUPLICATE CHECK
+    try {
+      const res = await fetch(paymentsUrl);
+      const all = await res.json();
+      const payments = Array.isArray(all) ? all : (all.Items || []);
+      const existsSame = payments.some(p => (String(p.tenantId) === String(selectedId) || String(p.tenantID) === String(selectedId)) && String(p.month) === String(month) && Number(p.year) === Number(year));
+      if (existsSame) {
+        // show modal and inline message
+        const msg = `Payment for ${month} ${year} already exists.`;
+        showModal('Duplicate payment', 'A payment/entry already exists for this tenant for the selected month and year. Duplicate not allowed.');
+        showInlineWarning(msg, true); // persist until user changes something
+        savePaymentBtn.disabled = false; savePaymentBtn.innerText = 'Save Payment';
+        return;
+      }
+    } catch(e){
+      console.warn('Client-side duplicate check failed, server will enforce uniqueness.', e);
+    }
+
+    // find if tenant has prior payments -> allow extras only on first payment
+    let allowExtras = true;
+    try {
+      const res = await fetch(paymentsUrl);
+      const all = await res.json();
+      const payments = Array.isArray(all) ? all : (all.Items || []);
+      const hasAny = payments.some(p => String(p.tenantId) === String(selectedId) || String(p.tenantID) === String(selectedId));
+      allowExtras = !hasAny;
+    } catch(e){
+      allowExtras = true;
+    }
+
+    // Safe rent picking:
+    let rentVal = 0;
+    const typed = String(rentAmount.value || '').trim();
+    if(typed !== '' && !Number.isNaN(Number(typed))) {
+      rentVal = Number(typed);
+    } else if (tenant.rent !== undefined && tenant.rent !== null && String(tenant.rent).trim() !== "") {
+      rentVal = Number(tenant.rent);
+    } else {
+      rentVal = 0;
+    }
+
+    const payload = {
+      tenantID: selectedId,
+      tenantId: selectedId,
+      tenantName: tenant.name || '',
+      room: tenant.room || '',
+      month,
+      year: year,
+      rent: rentVal,
+      deposit: allowExtras ? (Number(depositAmount.value) || 0) : 0,
+      maintenance: allowExtras ? (Number(maintenanceAmount.value) || 0) : 0,
+      method: methodSel.value,
+      status: statusSel.value,
+      date: paymentDate.value || todayISO()
+    };
+
+    try {
+      const res = await fetch(paymentsUrl, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        // if backend sends 409 -> duplicate
+        if (res.status === 409 || (json && json.error && /duplicate|exist/i.test(json.error))) {
+          const msg = `Payment for ${month} ${year} already exists.`;
+          showModal('Duplicate payment', json.error || 'An entry already exists for this tenant/month/year.');
+          showInlineWarning(msg, true);
+          savePaymentBtn.disabled=false; savePaymentBtn.innerText='Save Payment';
+          return;
+        }
+        throw new Error(json.error || JSON.stringify(json));
+      }
+
+      await loadTenants();
+      await loadPaymentsAndSummary();
+      document.getElementById('paymentForm').reset();
+      const now = new Date(); yearSel.value = now.getFullYear(); monthSel.value = monthNameFromIndex(now.getMonth()); paymentDate.value = todayISO();
+      if(tenant.rent !== undefined && tenant.rent !== null && String(tenant.rent).trim() !== "") {
+        rentAmount.value = Number(tenant.rent);
+      }
+      showModal('Saved', json.message || 'Saved');
+      // clear inline warning after success
+      clearInlineWarning();
+    } catch(err){
+      console.error('Save failed', err);
+      showModal('Error', 'Save failed. See console for details.');
+    } finally {
+      savePaymentBtn.disabled = false; savePaymentBtn.innerText = 'Save Payment';
+    }
+  });
+
+  /* ============= HELPERS ============= */
+  function escapeHtml(s){ if(s === undefined || s === null) return ''; return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  /* ============= INIT ============= */
+  (async function init(){
+    await loadTenants();
+    await loadPaymentsAndSummary();
+    setInterval(()=>{ loadTenants(); loadPaymentsAndSummary(); }, 20000);
+  })();
+  </script>
+
+</body>
+</html>

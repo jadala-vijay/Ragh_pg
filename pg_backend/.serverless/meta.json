@@ -1,0 +1,5646 @@
+{
+  "C:\\Users\\Admin\\Desktop\\pg_new\\pg_backend\\serverless.yml": {
+    "versionFramework": "4.25.0",
+    "servicePath": "C:\\Users\\Admin\\Desktop\\pg_new\\pg_backend\\serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "pg-manager-backend",
+      "frameworkVersion": "4",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs18.x",
+        "region": "ap-south-1",
+        "stage": "dev",
+        "httpApi": {
+          "cors": {
+            "allowedOrigins": [
+              "*"
+            ],
+            "allowedHeaders": [
+              "*"
+            ],
+            "allowedMethods": [
+              "GET",
+              "POST",
+              "PUT",
+              "DELETE",
+              "OPTIONS"
+            ]
+          }
+        },
+        "iamRoleStatements": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "dynamodb:PutItem",
+              "dynamodb:GetItem",
+              "dynamodb:Scan",
+              "dynamodb:UpdateItem",
+              "dynamodb:DeleteItem"
+            ],
+            "Resource": [
+              "arn:aws:dynamodb:ap-south-1:*:table/PGTenants",
+              "arn:aws:dynamodb:ap-south-1:*:table/PGPayments",
+              "arn:aws:dynamodb:ap-south-1:*:table/PGOwner"
+            ]
+          }
+        ],
+        "versionFunctions": true,
+        "compiledCloudFormationTemplate": {
+          "AWSTemplateFormatVersion": "2010-09-09",
+          "Description": "The AWS CloudFormation template for this Serverless application",
+          "Resources": {
+            "AddTenantLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-addTenant"
+              }
+            },
+            "GetTenantsLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getTenants"
+              }
+            },
+            "GetTenantLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getTenant"
+              }
+            },
+            "UpdateTenantLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-updateTenant"
+              }
+            },
+            "DeleteTenantLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-deleteTenant"
+              }
+            },
+            "AddPaymentLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-addPayment"
+              }
+            },
+            "GetPaymentsLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getPayments"
+              }
+            },
+            "GetTenantPaymentsLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getTenantPayments"
+              }
+            },
+            "UpdatePaymentLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-updatePayment"
+              }
+            },
+            "DeletePaymentLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-deletePayment"
+              }
+            },
+            "RegisterOwnerLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-registerOwner"
+              }
+            },
+            "LoginOwnerLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/pg-manager-backend-dev-loginOwner"
+              }
+            },
+            "IamRoleLambdaExecution": {
+              "Type": "AWS::IAM::Role",
+              "Properties": {
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": [
+                          "lambda.amazonaws.com"
+                        ]
+                      },
+                      "Action": [
+                        "sts:AssumeRole"
+                      ]
+                    }
+                  ]
+                },
+                "Policies": [
+                  {
+                    "PolicyName": {
+                      "Fn::Join": [
+                        "-",
+                        [
+                          "pg-manager-backend",
+                          "dev",
+                          "lambda"
+                        ]
+                      ]
+                    },
+                    "PolicyDocument": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:CreateLogStream",
+                            "logs:CreateLogGroup",
+                            "logs:TagResource"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/pg-manager-backend-dev*:*"
+                            }
+                          ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:PutLogEvents"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/pg-manager-backend-dev*:*:*"
+                            }
+                          ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "dynamodb:PutItem",
+                            "dynamodb:GetItem",
+                            "dynamodb:Scan",
+                            "dynamodb:UpdateItem",
+                            "dynamodb:DeleteItem"
+                          ],
+                          "Resource": [
+                            "arn:aws:dynamodb:ap-south-1:*:table/PGTenants",
+                            "arn:aws:dynamodb:ap-south-1:*:table/PGPayments",
+                            "arn:aws:dynamodb:ap-south-1:*:table/PGOwner"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "Path": "/",
+                "RoleName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "pg-manager-backend",
+                      "dev",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "lambdaRole"
+                    ]
+                  ]
+                }
+              }
+            },
+            "AddTenantLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/tenants.addTenant",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-addTenant",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "AddTenantLogGroup"
+              ]
+            },
+            "GetTenantsLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/tenants.getTenants",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-getTenants",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "GetTenantsLogGroup"
+              ]
+            },
+            "GetTenantLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/tenants.getTenant",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-getTenant",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "GetTenantLogGroup"
+              ]
+            },
+            "UpdateTenantLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/tenants.updateTenant",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-updateTenant",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "UpdateTenantLogGroup"
+              ]
+            },
+            "DeleteTenantLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/tenants.deleteTenant",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-deleteTenant",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "DeleteTenantLogGroup"
+              ]
+            },
+            "AddPaymentLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/payments.addPayment",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-addPayment",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "AddPaymentLogGroup"
+              ]
+            },
+            "GetPaymentsLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/payments.getPayments",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-getPayments",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "GetPaymentsLogGroup"
+              ]
+            },
+            "GetTenantPaymentsLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/payments.getTenantPayments",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-getTenantPayments",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "GetTenantPaymentsLogGroup"
+              ]
+            },
+            "UpdatePaymentLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/payments.updatePayment",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-updatePayment",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "UpdatePaymentLogGroup"
+              ]
+            },
+            "DeletePaymentLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/payments.deletePayment",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-deletePayment",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "DeletePaymentLogGroup"
+              ]
+            },
+            "RegisterOwnerLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/auth.registerOwner",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-registerOwner",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "RegisterOwnerLogGroup"
+              ]
+            },
+            "LoginOwnerLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                  "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+                },
+                "Handler": "src/auth.loginOwner",
+                "Runtime": "nodejs18.x",
+                "FunctionName": "pg-manager-backend-dev-loginOwner",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "LoginOwnerLogGroup"
+              ]
+            },
+            "AddTenantLambdaVersionMfjmq2B3d5Jb9jtMVPQK61rAkBYKnJm0I9QnjaLQxE": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "AddTenantLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "GetTenantsLambdaVersionKS8WXFe0qRWVxl3Ygyh4pSopHNvM06YXtL7Jz2k0": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "GetTenantsLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "GetTenantLambdaVersiony3OvtnANRyv7aw127M4fVLTL18nhigaoZUe52HPE0n4": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "GetTenantLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "UpdateTenantLambdaVersionyYgcvSgniJLGghBJFf8beqjurtQbEMpmQoC8AZfadc": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "UpdateTenantLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "DeleteTenantLambdaVersiontTnAcOLvovxY75VAgoB5YpAAc2mmaO4KuzOXCTxog": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "DeleteTenantLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "AddPaymentLambdaVersioncStRh7hsODpeQSXcEFEuFm0LqifuR5qWIAZstDTU": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "AddPaymentLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "GetPaymentsLambdaVersionp5XfWFUFHgpHRDdDouLb9HWGwpcEi6z6SGIGVvk8c": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "GetPaymentsLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "GetTenantPaymentsLambdaVersion30d93MliXhghZYqJGAYC6dkJd6HkHIEby21qFUqw": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "GetTenantPaymentsLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "UpdatePaymentLambdaVersionenRT3TZKWcKEY3bRWHxOGyN6eJMK1hZsHiXJ4r9A4FY": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "UpdatePaymentLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "DeletePaymentLambdaVersionse5VbUQJHj4Zs8TokUoRoghGEQMy7R31WSaJw3zZho": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "DeletePaymentLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "RegisterOwnerLambdaVersionfNaBc57eBxO8l6Mb4u2J4936gjLtuhQGCPI901h7E": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "RegisterOwnerLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "LoginOwnerLambdaVersionNJKHAvWrmZfI9eZzTdUuPWPogoWmIlpaU0IKTeYgMZM": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "LoginOwnerLambdaFunction"
+                },
+                "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+              }
+            },
+            "HttpApi": {
+              "Type": "AWS::ApiGatewayV2::Api",
+              "Properties": {
+                "Name": "dev-pg-manager-backend",
+                "ProtocolType": "HTTP",
+                "CorsConfiguration": {
+                  "AllowCredentials": "<REDACTED>",
+                  "AllowHeaders": [
+                    "*"
+                  ],
+                  "AllowMethods": [
+                    "GET",
+                    "POST",
+                    "PUT",
+                    "DELETE",
+                    "OPTIONS"
+                  ],
+                  "AllowOrigins": [
+                    "*"
+                  ]
+                }
+              }
+            },
+            "HttpApiStage": {
+              "Type": "AWS::ApiGatewayV2::Stage",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "StageName": "$default",
+                "AutoDeploy": true,
+                "DefaultRouteSettings": {
+                  "DetailedMetricsEnabled": false
+                }
+              }
+            },
+            "AddTenantLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "AddTenantLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationAddTenant": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "AddTenantLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePostTenants": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "POST /tenants",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationAddTenant"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationAddTenant"
+            },
+            "GetTenantsLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "GetTenantsLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationGetTenants": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "GetTenantsLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteGetTenants": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "GET /tenants",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationGetTenants"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationGetTenants"
+            },
+            "GetTenantLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "GetTenantLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationGetTenant": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "GetTenantLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteGetTenantsTenantidVar": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "GET /tenants/{tenantId}",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationGetTenant"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationGetTenant"
+            },
+            "UpdateTenantLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "UpdateTenantLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationUpdateTenant": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "UpdateTenantLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePutTenantsTenantidVar": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "PUT /tenants/{tenantId}",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationUpdateTenant"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationUpdateTenant"
+            },
+            "DeleteTenantLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "DeleteTenantLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationDeleteTenant": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "DeleteTenantLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteDeleteTenantsTenantidVar": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "DELETE /tenants/{tenantId}",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationDeleteTenant"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationDeleteTenant"
+            },
+            "AddPaymentLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "AddPaymentLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationAddPayment": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "AddPaymentLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePostPayments": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "POST /payments",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationAddPayment"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationAddPayment"
+            },
+            "GetPaymentsLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "GetPaymentsLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationGetPayments": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "GetPaymentsLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteGetPayments": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "GET /payments",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationGetPayments"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationGetPayments"
+            },
+            "GetTenantPaymentsLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "GetTenantPaymentsLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationGetTenantPayments": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "GetTenantPaymentsLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteGetPaymentsTenantidVar": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "GET /payments/{tenantId}",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationGetTenantPayments"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationGetTenantPayments"
+            },
+            "UpdatePaymentLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "UpdatePaymentLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationUpdatePayment": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "UpdatePaymentLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePutPaymentsPaymentidVar": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "PUT /payments/{paymentId}",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationUpdatePayment"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationUpdatePayment"
+            },
+            "DeletePaymentLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "DeletePaymentLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationDeletePayment": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "DeletePaymentLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteDeletePaymentsPaymentidVar": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "DELETE /payments/{paymentId}",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationDeletePayment"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationDeletePayment"
+            },
+            "RegisterOwnerLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "RegisterOwnerLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationRegisterOwner": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "RegisterOwnerLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePostAuthRegister": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "POST /auth/register",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationRegisterOwner"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationRegisterOwner"
+            },
+            "LoginOwnerLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "LoginOwnerLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationLoginOwner": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "LoginOwnerLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRoutePostAuthLogin": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "POST /auth/login",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationLoginOwner"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationLoginOwner"
+            },
+            "PGTenants": {
+              "Type": "AWS::DynamoDB::Table",
+              "Properties": {
+                "TableName": "PGTenants",
+                "BillingMode": "PAY_PER_REQUEST",
+                "AttributeDefinitions": [
+                  {
+                    "AttributeName": "tenantId",
+                    "AttributeType": "S"
+                  }
+                ],
+                "KeySchema": [
+                  {
+                    "AttributeName": "tenantId",
+                    "KeyType": "HASH"
+                  }
+                ]
+              }
+            },
+            "PGPayments": {
+              "Type": "AWS::DynamoDB::Table",
+              "Properties": {
+                "TableName": "PGPayments",
+                "BillingMode": "PAY_PER_REQUEST",
+                "AttributeDefinitions": [
+                  {
+                    "AttributeName": "paymentId",
+                    "AttributeType": "S"
+                  }
+                ],
+                "KeySchema": [
+                  {
+                    "AttributeName": "paymentId",
+                    "KeyType": "HASH"
+                  }
+                ]
+              }
+            },
+            "PGOwner": {
+              "Type": "AWS::DynamoDB::Table",
+              "Properties": {
+                "TableName": "PGOwner",
+                "BillingMode": "PAY_PER_REQUEST",
+                "AttributeDefinitions": [
+                  {
+                    "AttributeName": "ownerId",
+                    "AttributeType": "S"
+                  }
+                ],
+                "KeySchema": [
+                  {
+                    "AttributeName": "ownerId",
+                    "KeyType": "HASH"
+                  }
+                ]
+              }
+            }
+          },
+          "Outputs": {
+            "ServerlessDeploymentBucketName": {
+              "Value": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-ServerlessDeploymentBucketName"
+              }
+            },
+            "AddTenantLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "AddTenantLambdaVersionMfjmq2B3d5Jb9jtMVPQK61rAkBYKnJm0I9QnjaLQxE"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-AddTenantLambdaFunctionQualifiedArn"
+              }
+            },
+            "GetTenantsLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "GetTenantsLambdaVersionKS8WXFe0qRWVxl3Ygyh4pSopHNvM06YXtL7Jz2k0"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-GetTenantsLambdaFunctionQualifiedArn"
+              }
+            },
+            "GetTenantLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "GetTenantLambdaVersiony3OvtnANRyv7aw127M4fVLTL18nhigaoZUe52HPE0n4"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-GetTenantLambdaFunctionQualifiedArn"
+              }
+            },
+            "UpdateTenantLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "UpdateTenantLambdaVersionyYgcvSgniJLGghBJFf8beqjurtQbEMpmQoC8AZfadc"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-UpdateTenantLambdaFunctionQualifiedArn"
+              }
+            },
+            "DeleteTenantLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "DeleteTenantLambdaVersiontTnAcOLvovxY75VAgoB5YpAAc2mmaO4KuzOXCTxog"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-DeleteTenantLambdaFunctionQualifiedArn"
+              }
+            },
+            "AddPaymentLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "AddPaymentLambdaVersioncStRh7hsODpeQSXcEFEuFm0LqifuR5qWIAZstDTU"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-AddPaymentLambdaFunctionQualifiedArn"
+              }
+            },
+            "GetPaymentsLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "GetPaymentsLambdaVersionp5XfWFUFHgpHRDdDouLb9HWGwpcEi6z6SGIGVvk8c"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-GetPaymentsLambdaFunctionQualifiedArn"
+              }
+            },
+            "GetTenantPaymentsLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "GetTenantPaymentsLambdaVersion30d93MliXhghZYqJGAYC6dkJd6HkHIEby21qFUqw"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-GetTenantPaymentsLambdaFunctionQualifiedArn"
+              }
+            },
+            "UpdatePaymentLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "UpdatePaymentLambdaVersionenRT3TZKWcKEY3bRWHxOGyN6eJMK1hZsHiXJ4r9A4FY"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-UpdatePaymentLambdaFunctionQualifiedArn"
+              }
+            },
+            "DeletePaymentLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "DeletePaymentLambdaVersionse5VbUQJHj4Zs8TokUoRoghGEQMy7R31WSaJw3zZho"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-DeletePaymentLambdaFunctionQualifiedArn"
+              }
+            },
+            "RegisterOwnerLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "RegisterOwnerLambdaVersionfNaBc57eBxO8l6Mb4u2J4936gjLtuhQGCPI901h7E"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-RegisterOwnerLambdaFunctionQualifiedArn"
+              }
+            },
+            "LoginOwnerLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "LoginOwnerLambdaVersionNJKHAvWrmZfI9eZzTdUuPWPogoWmIlpaU0IKTeYgMZM"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-LoginOwnerLambdaFunctionQualifiedArn"
+              }
+            },
+            "HttpApiId": {
+              "Description": "Id of the HTTP API",
+              "Value": {
+                "Ref": "HttpApi"
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-HttpApiId"
+              }
+            },
+            "HttpApiUrl": {
+              "Description": "URL of the HTTP API",
+              "Value": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "https://",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    ".execute-api.",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ".",
+                    {
+                      "Ref": "AWS::URLSuffix"
+                    }
+                  ]
+                ]
+              },
+              "Export": {
+                "Name": "sls-pg-manager-backend-dev-HttpApiUrl"
+              }
+            }
+          }
+        },
+        "vpc": {}
+      },
+      "plugins": [
+        "serverless-offline"
+      ],
+      "functions": {
+        "addTenant": {
+          "handler": "src/tenants.addTenant",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/tenants",
+                "method": "post"
+              },
+              "resolvedMethod": "POST",
+              "resolvedPath": "/tenants"
+            }
+          ],
+          "name": "pg-manager-backend-dev-addTenant",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "AddTenantLambdaVersionMfjmq2B3d5Jb9jtMVPQK61rAkBYKnJm0I9QnjaLQxE"
+        },
+        "getTenants": {
+          "handler": "src/tenants.getTenants",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/tenants",
+                "method": "get"
+              },
+              "resolvedMethod": "GET",
+              "resolvedPath": "/tenants"
+            }
+          ],
+          "name": "pg-manager-backend-dev-getTenants",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "GetTenantsLambdaVersionKS8WXFe0qRWVxl3Ygyh4pSopHNvM06YXtL7Jz2k0"
+        },
+        "getTenant": {
+          "handler": "src/tenants.getTenant",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/tenants/{tenantId}",
+                "method": "get"
+              },
+              "resolvedMethod": "GET",
+              "resolvedPath": "/tenants/{tenantId}"
+            }
+          ],
+          "name": "pg-manager-backend-dev-getTenant",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "GetTenantLambdaVersiony3OvtnANRyv7aw127M4fVLTL18nhigaoZUe52HPE0n4"
+        },
+        "updateTenant": {
+          "handler": "src/tenants.updateTenant",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/tenants/{tenantId}",
+                "method": "put"
+              },
+              "resolvedMethod": "PUT",
+              "resolvedPath": "/tenants/{tenantId}"
+            }
+          ],
+          "name": "pg-manager-backend-dev-updateTenant",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "UpdateTenantLambdaVersionyYgcvSgniJLGghBJFf8beqjurtQbEMpmQoC8AZfadc"
+        },
+        "deleteTenant": {
+          "handler": "src/tenants.deleteTenant",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/tenants/{tenantId}",
+                "method": "delete"
+              },
+              "resolvedMethod": "DELETE",
+              "resolvedPath": "/tenants/{tenantId}"
+            }
+          ],
+          "name": "pg-manager-backend-dev-deleteTenant",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "DeleteTenantLambdaVersiontTnAcOLvovxY75VAgoB5YpAAc2mmaO4KuzOXCTxog"
+        },
+        "addPayment": {
+          "handler": "src/payments.addPayment",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/payments",
+                "method": "post"
+              },
+              "resolvedMethod": "POST",
+              "resolvedPath": "/payments"
+            }
+          ],
+          "name": "pg-manager-backend-dev-addPayment",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "AddPaymentLambdaVersioncStRh7hsODpeQSXcEFEuFm0LqifuR5qWIAZstDTU"
+        },
+        "getPayments": {
+          "handler": "src/payments.getPayments",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/payments",
+                "method": "get"
+              },
+              "resolvedMethod": "GET",
+              "resolvedPath": "/payments"
+            }
+          ],
+          "name": "pg-manager-backend-dev-getPayments",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "GetPaymentsLambdaVersionp5XfWFUFHgpHRDdDouLb9HWGwpcEi6z6SGIGVvk8c"
+        },
+        "getTenantPayments": {
+          "handler": "src/payments.getTenantPayments",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/payments/{tenantId}",
+                "method": "get"
+              },
+              "resolvedMethod": "GET",
+              "resolvedPath": "/payments/{tenantId}"
+            }
+          ],
+          "name": "pg-manager-backend-dev-getTenantPayments",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "GetTenantPaymentsLambdaVersion30d93MliXhghZYqJGAYC6dkJd6HkHIEby21qFUqw"
+        },
+        "updatePayment": {
+          "handler": "src/payments.updatePayment",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/payments/{paymentId}",
+                "method": "put"
+              },
+              "resolvedMethod": "PUT",
+              "resolvedPath": "/payments/{paymentId}"
+            }
+          ],
+          "name": "pg-manager-backend-dev-updatePayment",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "UpdatePaymentLambdaVersionenRT3TZKWcKEY3bRWHxOGyN6eJMK1hZsHiXJ4r9A4FY"
+        },
+        "deletePayment": {
+          "handler": "src/payments.deletePayment",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/payments/{paymentId}",
+                "method": "delete"
+              },
+              "resolvedMethod": "DELETE",
+              "resolvedPath": "/payments/{paymentId}"
+            }
+          ],
+          "name": "pg-manager-backend-dev-deletePayment",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "DeletePaymentLambdaVersionse5VbUQJHj4Zs8TokUoRoghGEQMy7R31WSaJw3zZho"
+        },
+        "registerOwner": {
+          "handler": "src/auth.registerOwner",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/auth/register",
+                "method": "post"
+              },
+              "resolvedMethod": "POST",
+              "resolvedPath": "/auth/register"
+            }
+          ],
+          "name": "pg-manager-backend-dev-registerOwner",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "RegisterOwnerLambdaVersionfNaBc57eBxO8l6Mb4u2J4936gjLtuhQGCPI901h7E"
+        },
+        "loginOwner": {
+          "handler": "src/auth.loginOwner",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/auth/login",
+                "method": "post"
+              },
+              "resolvedMethod": "POST",
+              "resolvedPath": "/auth/login"
+            }
+          ],
+          "name": "pg-manager-backend-dev-loginOwner",
+          "package": {},
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs18.x",
+          "vpc": {},
+          "versionLogicalId": "LoginOwnerLambdaVersionNJKHAvWrmZfI9eZzTdUuPWPogoWmIlpaU0IKTeYgMZM"
+        }
+      },
+      "resources": {
+        "Resources": {
+          "PGTenants": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "PGTenants",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "tenantId",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "tenantId",
+                  "KeyType": "HASH"
+                }
+              ]
+            }
+          },
+          "PGPayments": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "PGPayments",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "paymentId",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "paymentId",
+                  "KeyType": "HASH"
+                }
+              ]
+            }
+          },
+          "PGOwner": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "PGOwner",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "ownerId",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "ownerId",
+                  "KeyType": "HASH"
+                }
+              ]
+            }
+          }
+        },
+        "Outputs": {}
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "nodejs18.x",
+      "region": "ap-south-1",
+      "stage": "dev",
+      "httpApi": {
+        "cors": {
+          "allowedOrigins": [
+            "*"
+          ],
+          "allowedHeaders": [
+            "*"
+          ],
+          "allowedMethods": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "OPTIONS"
+          ]
+        }
+      },
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:PutItem",
+            "dynamodb:GetItem",
+            "dynamodb:Scan",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem"
+          ],
+          "Resource": [
+            "arn:aws:dynamodb:ap-south-1:*:table/PGTenants",
+            "arn:aws:dynamodb:ap-south-1:*:table/PGPayments",
+            "arn:aws:dynamodb:ap-south-1:*:table/PGOwner"
+          ]
+        }
+      ],
+      "versionFunctions": true,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "AddTenantLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-addTenant"
+            }
+          },
+          "GetTenantsLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getTenants"
+            }
+          },
+          "GetTenantLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getTenant"
+            }
+          },
+          "UpdateTenantLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-updateTenant"
+            }
+          },
+          "DeleteTenantLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-deleteTenant"
+            }
+          },
+          "AddPaymentLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-addPayment"
+            }
+          },
+          "GetPaymentsLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getPayments"
+            }
+          },
+          "GetTenantPaymentsLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getTenantPayments"
+            }
+          },
+          "UpdatePaymentLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-updatePayment"
+            }
+          },
+          "DeletePaymentLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-deletePayment"
+            }
+          },
+          "RegisterOwnerLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-registerOwner"
+            }
+          },
+          "LoginOwnerLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/pg-manager-backend-dev-loginOwner"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "pg-manager-backend",
+                        "dev",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup",
+                          "logs:TagResource"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/pg-manager-backend-dev*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/pg-manager-backend-dev*:*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "dynamodb:PutItem",
+                          "dynamodb:GetItem",
+                          "dynamodb:Scan",
+                          "dynamodb:UpdateItem",
+                          "dynamodb:DeleteItem"
+                        ],
+                        "Resource": [
+                          "arn:aws:dynamodb:ap-south-1:*:table/PGTenants",
+                          "arn:aws:dynamodb:ap-south-1:*:table/PGPayments",
+                          "arn:aws:dynamodb:ap-south-1:*:table/PGOwner"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "pg-manager-backend",
+                    "dev",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "AddTenantLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/tenants.addTenant",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-addTenant",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "AddTenantLogGroup"
+            ]
+          },
+          "GetTenantsLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/tenants.getTenants",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-getTenants",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetTenantsLogGroup"
+            ]
+          },
+          "GetTenantLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/tenants.getTenant",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-getTenant",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetTenantLogGroup"
+            ]
+          },
+          "UpdateTenantLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/tenants.updateTenant",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-updateTenant",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "UpdateTenantLogGroup"
+            ]
+          },
+          "DeleteTenantLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/tenants.deleteTenant",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-deleteTenant",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "DeleteTenantLogGroup"
+            ]
+          },
+          "AddPaymentLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/payments.addPayment",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-addPayment",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "AddPaymentLogGroup"
+            ]
+          },
+          "GetPaymentsLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/payments.getPayments",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-getPayments",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetPaymentsLogGroup"
+            ]
+          },
+          "GetTenantPaymentsLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/payments.getTenantPayments",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-getTenantPayments",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetTenantPaymentsLogGroup"
+            ]
+          },
+          "UpdatePaymentLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/payments.updatePayment",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-updatePayment",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "UpdatePaymentLogGroup"
+            ]
+          },
+          "DeletePaymentLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/payments.deletePayment",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-deletePayment",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "DeletePaymentLogGroup"
+            ]
+          },
+          "RegisterOwnerLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/auth.registerOwner",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-registerOwner",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "RegisterOwnerLogGroup"
+            ]
+          },
+          "LoginOwnerLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+                "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+              },
+              "Handler": "src/auth.loginOwner",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "pg-manager-backend-dev-loginOwner",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "LoginOwnerLogGroup"
+            ]
+          },
+          "AddTenantLambdaVersionMfjmq2B3d5Jb9jtMVPQK61rAkBYKnJm0I9QnjaLQxE": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "AddTenantLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "GetTenantsLambdaVersionKS8WXFe0qRWVxl3Ygyh4pSopHNvM06YXtL7Jz2k0": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetTenantsLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "GetTenantLambdaVersiony3OvtnANRyv7aw127M4fVLTL18nhigaoZUe52HPE0n4": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetTenantLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "UpdateTenantLambdaVersionyYgcvSgniJLGghBJFf8beqjurtQbEMpmQoC8AZfadc": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "UpdateTenantLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "DeleteTenantLambdaVersiontTnAcOLvovxY75VAgoB5YpAAc2mmaO4KuzOXCTxog": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "DeleteTenantLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "AddPaymentLambdaVersioncStRh7hsODpeQSXcEFEuFm0LqifuR5qWIAZstDTU": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "AddPaymentLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "GetPaymentsLambdaVersionp5XfWFUFHgpHRDdDouLb9HWGwpcEi6z6SGIGVvk8c": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetPaymentsLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "GetTenantPaymentsLambdaVersion30d93MliXhghZYqJGAYC6dkJd6HkHIEby21qFUqw": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetTenantPaymentsLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "UpdatePaymentLambdaVersionenRT3TZKWcKEY3bRWHxOGyN6eJMK1hZsHiXJ4r9A4FY": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "UpdatePaymentLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "DeletePaymentLambdaVersionse5VbUQJHj4Zs8TokUoRoghGEQMy7R31WSaJw3zZho": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "DeletePaymentLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "RegisterOwnerLambdaVersionfNaBc57eBxO8l6Mb4u2J4936gjLtuhQGCPI901h7E": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "RegisterOwnerLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "LoginOwnerLambdaVersionNJKHAvWrmZfI9eZzTdUuPWPogoWmIlpaU0IKTeYgMZM": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "LoginOwnerLambdaFunction"
+              },
+              "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+            }
+          },
+          "HttpApi": {
+            "Type": "AWS::ApiGatewayV2::Api",
+            "Properties": {
+              "Name": "dev-pg-manager-backend",
+              "ProtocolType": "HTTP",
+              "CorsConfiguration": {
+                "AllowCredentials": "<REDACTED>",
+                "AllowHeaders": [
+                  "*"
+                ],
+                "AllowMethods": [
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "DELETE",
+                  "OPTIONS"
+                ],
+                "AllowOrigins": [
+                  "*"
+                ]
+              }
+            }
+          },
+          "HttpApiStage": {
+            "Type": "AWS::ApiGatewayV2::Stage",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "StageName": "$default",
+              "AutoDeploy": true,
+              "DefaultRouteSettings": {
+                "DetailedMetricsEnabled": false
+              }
+            }
+          },
+          "AddTenantLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "AddTenantLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationAddTenant": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "AddTenantLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostTenants": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /tenants",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationAddTenant"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationAddTenant"
+          },
+          "GetTenantsLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetTenantsLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetTenants": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "GetTenantsLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetTenants": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /tenants",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetTenants"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetTenants"
+          },
+          "GetTenantLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetTenantLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetTenant": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "GetTenantLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetTenantsTenantidVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /tenants/{tenantId}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetTenant"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetTenant"
+          },
+          "UpdateTenantLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "UpdateTenantLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationUpdateTenant": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "UpdateTenantLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePutTenantsTenantidVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "PUT /tenants/{tenantId}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationUpdateTenant"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationUpdateTenant"
+          },
+          "DeleteTenantLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "DeleteTenantLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationDeleteTenant": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "DeleteTenantLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteDeleteTenantsTenantidVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "DELETE /tenants/{tenantId}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationDeleteTenant"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationDeleteTenant"
+          },
+          "AddPaymentLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "AddPaymentLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationAddPayment": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "AddPaymentLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostPayments": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /payments",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationAddPayment"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationAddPayment"
+          },
+          "GetPaymentsLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetPaymentsLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetPayments": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "GetPaymentsLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetPayments": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /payments",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetPayments"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetPayments"
+          },
+          "GetTenantPaymentsLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetTenantPaymentsLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationGetTenantPayments": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "GetTenantPaymentsLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteGetPaymentsTenantidVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "GET /payments/{tenantId}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationGetTenantPayments"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationGetTenantPayments"
+          },
+          "UpdatePaymentLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "UpdatePaymentLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationUpdatePayment": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "UpdatePaymentLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePutPaymentsPaymentidVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "PUT /payments/{paymentId}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationUpdatePayment"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationUpdatePayment"
+          },
+          "DeletePaymentLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "DeletePaymentLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationDeletePayment": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "DeletePaymentLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRouteDeletePaymentsPaymentidVar": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "DELETE /payments/{paymentId}",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationDeletePayment"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationDeletePayment"
+          },
+          "RegisterOwnerLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "RegisterOwnerLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationRegisterOwner": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "RegisterOwnerLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostAuthRegister": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /auth/register",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationRegisterOwner"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationRegisterOwner"
+          },
+          "LoginOwnerLambdaPermissionHttpApi": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "LoginOwnerLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    "/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "HttpApiIntegrationLoginOwner": {
+            "Type": "AWS::ApiGatewayV2::Integration",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "IntegrationType": "AWS_PROXY",
+              "IntegrationUri": {
+                "Fn::GetAtt": [
+                  "LoginOwnerLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "PayloadFormatVersion": "2.0",
+              "TimeoutInMillis": 30000
+            }
+          },
+          "HttpApiRoutePostAuthLogin": {
+            "Type": "AWS::ApiGatewayV2::Route",
+            "Properties": {
+              "ApiId": {
+                "Ref": "HttpApi"
+              },
+              "RouteKey": "POST /auth/login",
+              "Target": {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "integrations",
+                    {
+                      "Ref": "HttpApiIntegrationLoginOwner"
+                    }
+                  ]
+                ]
+              }
+            },
+            "DependsOn": "HttpApiIntegrationLoginOwner"
+          },
+          "PGTenants": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "PGTenants",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "tenantId",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "tenantId",
+                  "KeyType": "HASH"
+                }
+              ]
+            }
+          },
+          "PGPayments": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "PGPayments",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "paymentId",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "paymentId",
+                  "KeyType": "HASH"
+                }
+              ]
+            }
+          },
+          "PGOwner": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "PGOwner",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "ownerId",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "ownerId",
+                  "KeyType": "HASH"
+                }
+              ]
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-ServerlessDeploymentBucketName"
+            }
+          },
+          "AddTenantLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "AddTenantLambdaVersionMfjmq2B3d5Jb9jtMVPQK61rAkBYKnJm0I9QnjaLQxE"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-AddTenantLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetTenantsLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetTenantsLambdaVersionKS8WXFe0qRWVxl3Ygyh4pSopHNvM06YXtL7Jz2k0"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-GetTenantsLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetTenantLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetTenantLambdaVersiony3OvtnANRyv7aw127M4fVLTL18nhigaoZUe52HPE0n4"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-GetTenantLambdaFunctionQualifiedArn"
+            }
+          },
+          "UpdateTenantLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "UpdateTenantLambdaVersionyYgcvSgniJLGghBJFf8beqjurtQbEMpmQoC8AZfadc"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-UpdateTenantLambdaFunctionQualifiedArn"
+            }
+          },
+          "DeleteTenantLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "DeleteTenantLambdaVersiontTnAcOLvovxY75VAgoB5YpAAc2mmaO4KuzOXCTxog"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-DeleteTenantLambdaFunctionQualifiedArn"
+            }
+          },
+          "AddPaymentLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "AddPaymentLambdaVersioncStRh7hsODpeQSXcEFEuFm0LqifuR5qWIAZstDTU"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-AddPaymentLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetPaymentsLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetPaymentsLambdaVersionp5XfWFUFHgpHRDdDouLb9HWGwpcEi6z6SGIGVvk8c"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-GetPaymentsLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetTenantPaymentsLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetTenantPaymentsLambdaVersion30d93MliXhghZYqJGAYC6dkJd6HkHIEby21qFUqw"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-GetTenantPaymentsLambdaFunctionQualifiedArn"
+            }
+          },
+          "UpdatePaymentLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "UpdatePaymentLambdaVersionenRT3TZKWcKEY3bRWHxOGyN6eJMK1hZsHiXJ4r9A4FY"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-UpdatePaymentLambdaFunctionQualifiedArn"
+            }
+          },
+          "DeletePaymentLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "DeletePaymentLambdaVersionse5VbUQJHj4Zs8TokUoRoghGEQMy7R31WSaJw3zZho"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-DeletePaymentLambdaFunctionQualifiedArn"
+            }
+          },
+          "RegisterOwnerLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "RegisterOwnerLambdaVersionfNaBc57eBxO8l6Mb4u2J4936gjLtuhQGCPI901h7E"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-RegisterOwnerLambdaFunctionQualifiedArn"
+            }
+          },
+          "LoginOwnerLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "LoginOwnerLambdaVersionNJKHAvWrmZfI9eZzTdUuPWPogoWmIlpaU0IKTeYgMZM"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-LoginOwnerLambdaFunctionQualifiedArn"
+            }
+          },
+          "HttpApiId": {
+            "Description": "Id of the HTTP API",
+            "Value": {
+              "Ref": "HttpApi"
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-HttpApiId"
+            }
+          },
+          "HttpApiUrl": {
+            "Description": "URL of the HTTP API",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  "https://",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  ".execute-api.",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix"
+                  }
+                ]
+              ]
+            },
+            "Export": {
+              "Name": "sls-pg-manager-backend-dev-HttpApiUrl"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "serviceRawFile": "service: pg-manager-backend\r\nframeworkVersion: '4'\r\n\r\nprovider:\r\n  name: aws\r\n  runtime: nodejs18.x\r\n  region: ap-south-1\r\n  stage: dev\r\n\r\n  # 🔥 GLOBAL CORS FIX FOR ALL ROUTES (IMPORTANT)\r\n  httpApi:\r\n    cors:\r\n      allowedOrigins:\r\n        - \"*\"\r\n      allowedHeaders:\r\n        - \"*\"\r\n      allowedMethods:\r\n        - GET\r\n        - POST\r\n        - PUT\r\n        - DELETE\r\n        - OPTIONS\r\n\r\n  iamRoleStatements:\r\n    - Effect: Allow\r\n      Action:\r\n        - dynamodb:PutItem\r\n        - dynamodb:GetItem\r\n        - dynamodb:Scan\r\n        - dynamodb:UpdateItem\r\n        - dynamodb:DeleteItem\r\n      Resource:\r\n        - arn:aws:dynamodb:ap-south-1:*:table/PGTenants\r\n        - arn:aws:dynamodb:ap-south-1:*:table/PGPayments\r\n        - arn:aws:dynamodb:ap-south-1:*:table/PGOwner\r\n\r\nplugins:\r\n  - serverless-offline\r\n\r\nfunctions:\r\n\r\n  # ---------- TENANTS ----------\r\n  addTenant:\r\n    handler: src/tenants.addTenant\r\n    events:\r\n      - httpApi:\r\n          path: /tenants\r\n          method: post\r\n\r\n  getTenants:\r\n    handler: src/tenants.getTenants\r\n    events:\r\n      - httpApi:\r\n          path: /tenants\r\n          method: get\r\n\r\n  getTenant:\r\n    handler: src/tenants.getTenant\r\n    events:\r\n      - httpApi:\r\n          path: /tenants/{tenantId}\r\n          method: get\r\n\r\n  updateTenant:\r\n    handler: src/tenants.updateTenant\r\n    events:\r\n      - httpApi:\r\n          path: /tenants/{tenantId}\r\n          method: put\r\n\r\n  deleteTenant:\r\n    handler: src/tenants.deleteTenant\r\n    events:\r\n      - httpApi:\r\n          path: /tenants/{tenantId}\r\n          method: delete\r\n\r\n  # ---------- PAYMENTS ----------\r\n  addPayment:\r\n    handler: src/payments.addPayment\r\n    events:\r\n      - httpApi:\r\n          path: /payments\r\n          method: post\r\n\r\n  getPayments:\r\n    handler: src/payments.getPayments\r\n    events:\r\n      - httpApi:\r\n          path: /payments\r\n          method: get\r\n\r\n  getTenantPayments:\r\n    handler: src/payments.getTenantPayments\r\n    events:\r\n      - httpApi:\r\n          path: /payments/{tenantId}\r\n          method: get\r\n\r\n  updatePayment:\r\n    handler: src/payments.updatePayment\r\n    events:\r\n      - httpApi:\r\n          path: /payments/{paymentId}\r\n          method: put\r\n\r\n  deletePayment:\r\n    handler: src/payments.deletePayment\r\n    events:\r\n      - httpApi:\r\n          path: /payments/{paymentId}\r\n          method: delete\r\n\r\n  # ---------- AUTH ----------\r\n  registerOwner:\r\n    handler: src/auth.registerOwner\r\n    events:\r\n      - httpApi:\r\n          path: /auth/register\r\n          method: post\r\n\r\n  loginOwner:\r\n    handler: src/auth.loginOwner\r\n    events:\r\n      - httpApi:\r\n          path: /auth/login\r\n          method: post\r\n\r\nresources:\r\n  Resources:\r\n\r\n    PGTenants:\r\n      Type: AWS::DynamoDB::Table\r\n      Properties:\r\n        TableName: PGTenants\r\n        BillingMode: PAY_PER_REQUEST\r\n        AttributeDefinitions:\r\n          - AttributeName: tenantId\r\n            AttributeType: S\r\n        KeySchema:\r\n          - AttributeName: tenantId\r\n            KeyType: HASH\r\n\r\n    PGPayments:\r\n      Type: AWS::DynamoDB::Table\r\n      Properties:\r\n        TableName: PGPayments\r\n        BillingMode: PAY_PER_REQUEST\r\n        AttributeDefinitions:\r\n          - AttributeName: paymentId\r\n            AttributeType: S\r\n        KeySchema:\r\n          - AttributeName: paymentId\r\n            KeyType: HASH\r\n\r\n    PGOwner:\r\n      Type: AWS::DynamoDB::Table\r\n      Properties:\r\n        TableName: PGOwner\r\n        BillingMode: PAY_PER_REQUEST\r\n        AttributeDefinitions:\r\n          - AttributeName: ownerId\r\n            AttributeType: S\r\n        KeySchema:\r\n          - AttributeName: ownerId\r\n            KeyType: HASH\r\n",
+    "command": [
+      "deploy"
+    ],
+    "options": {},
+    "orgId": "fc663b7d-dc14-4cc5-87b7-97162830e0ac",
+    "orgName": "raghavendrapg",
+    "userId": "M3PWTF1MJXVZhvjTfj",
+    "userName": "raghavendrapg",
+    "serviceProviderAwsAccountId": "469782857070",
+    "serviceProviderAwsCfStackName": "pg-manager-backend-dev",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:ap-south-1:469782857070:stack/pg-manager-backend-dev/c6c7e2e0-c7b2-11f0-b9f5-06038fa2dde1",
+    "serviceProviderAwsCfStackCreated": "2025-11-22T14:51:50.842Z",
+    "serviceProviderAwsCfStackUpdated": "2025-11-22T17:56:55.414Z",
+    "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "GetPaymentsLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-getPayments:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-GetPaymentsLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "AddTenantLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-addTenant:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-AddTenantLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "DeleteTenantLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-deleteTenant:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-DeleteTenantLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "GetTenantsLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-getTenants:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-GetTenantsLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "GetTenantPaymentsLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-getTenantPayments:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-GetTenantPaymentsLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "HttpApiId",
+        "OutputValue": "vlqf2jbdvl",
+        "Description": "Id of the HTTP API",
+        "ExportName": "sls-pg-manager-backend-dev-HttpApiId"
+      },
+      {
+        "OutputKey": "UpdatePaymentLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-updatePayment:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-UpdatePaymentLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "RegisterOwnerLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-registerOwner:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-RegisterOwnerLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+        "ExportName": "sls-pg-manager-backend-dev-ServerlessDeploymentBucketName"
+      },
+      {
+        "OutputKey": "LoginOwnerLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-loginOwner:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-LoginOwnerLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "HttpApiUrl",
+        "OutputValue": "https://vlqf2jbdvl.execute-api.ap-south-1.amazonaws.com",
+        "Description": "URL of the HTTP API",
+        "ExportName": "sls-pg-manager-backend-dev-HttpApiUrl"
+      },
+      {
+        "OutputKey": "DeletePaymentLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-deletePayment:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-DeletePaymentLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "UpdateTenantLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-updateTenant:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-UpdateTenantLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "AddPaymentLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-addPayment:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-AddPaymentLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "GetTenantLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:ap-south-1:469782857070:function:pg-manager-backend-dev-getTenant:9",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-pg-manager-backend-dev-GetTenantLambdaFunctionQualifiedArn"
+      }
+    ],
+    "compiledCloudFormationTemplate": {
+      "AWSTemplateFormatVersion": "2010-09-09",
+      "Description": "The AWS CloudFormation template for this Serverless application",
+      "Resources": {
+        "AddTenantLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-addTenant"
+          }
+        },
+        "GetTenantsLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getTenants"
+          }
+        },
+        "GetTenantLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getTenant"
+          }
+        },
+        "UpdateTenantLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-updateTenant"
+          }
+        },
+        "DeleteTenantLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-deleteTenant"
+          }
+        },
+        "AddPaymentLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-addPayment"
+          }
+        },
+        "GetPaymentsLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getPayments"
+          }
+        },
+        "GetTenantPaymentsLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-getTenantPayments"
+          }
+        },
+        "UpdatePaymentLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-updatePayment"
+          }
+        },
+        "DeletePaymentLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-deletePayment"
+          }
+        },
+        "RegisterOwnerLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-registerOwner"
+          }
+        },
+        "LoginOwnerLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": "/aws/lambda/pg-manager-backend-dev-loginOwner"
+          }
+        },
+        "IamRoleLambdaExecution": {
+          "Type": "AWS::IAM::Role",
+          "Properties": {
+            "AssumeRolePolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Principal": {
+                    "Service": [
+                      "lambda.amazonaws.com"
+                    ]
+                  },
+                  "Action": [
+                    "sts:AssumeRole"
+                  ]
+                }
+              ]
+            },
+            "Policies": [
+              {
+                "PolicyName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "pg-manager-backend",
+                      "dev",
+                      "lambda"
+                    ]
+                  ]
+                },
+                "PolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:CreateLogStream",
+                        "logs:CreateLogGroup",
+                        "logs:TagResource"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/pg-manager-backend-dev*:*"
+                        }
+                      ]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "logs:PutLogEvents"
+                      ],
+                      "Resource": [
+                        {
+                          "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/pg-manager-backend-dev*:*:*"
+                        }
+                      ]
+                    },
+                    {
+                      "Effect": "Allow",
+                      "Action": [
+                        "dynamodb:PutItem",
+                        "dynamodb:GetItem",
+                        "dynamodb:Scan",
+                        "dynamodb:UpdateItem",
+                        "dynamodb:DeleteItem"
+                      ],
+                      "Resource": [
+                        "arn:aws:dynamodb:ap-south-1:*:table/PGTenants",
+                        "arn:aws:dynamodb:ap-south-1:*:table/PGPayments",
+                        "arn:aws:dynamodb:ap-south-1:*:table/PGOwner"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "Path": "/",
+            "RoleName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "pg-manager-backend",
+                  "dev",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  "lambdaRole"
+                ]
+              ]
+            }
+          }
+        },
+        "AddTenantLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/tenants.addTenant",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-addTenant",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "AddTenantLogGroup"
+          ]
+        },
+        "GetTenantsLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/tenants.getTenants",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-getTenants",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "GetTenantsLogGroup"
+          ]
+        },
+        "GetTenantLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/tenants.getTenant",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-getTenant",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "GetTenantLogGroup"
+          ]
+        },
+        "UpdateTenantLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/tenants.updateTenant",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-updateTenant",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "UpdateTenantLogGroup"
+          ]
+        },
+        "DeleteTenantLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/tenants.deleteTenant",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-deleteTenant",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "DeleteTenantLogGroup"
+          ]
+        },
+        "AddPaymentLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/payments.addPayment",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-addPayment",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "AddPaymentLogGroup"
+          ]
+        },
+        "GetPaymentsLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/payments.getPayments",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-getPayments",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "GetPaymentsLogGroup"
+          ]
+        },
+        "GetTenantPaymentsLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/payments.getTenantPayments",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-getTenantPayments",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "GetTenantPaymentsLogGroup"
+          ]
+        },
+        "UpdatePaymentLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/payments.updatePayment",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-updatePayment",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "UpdatePaymentLogGroup"
+          ]
+        },
+        "DeletePaymentLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/payments.deletePayment",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-deletePayment",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "DeletePaymentLogGroup"
+          ]
+        },
+        "RegisterOwnerLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/auth.registerOwner",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-registerOwner",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "RegisterOwnerLogGroup"
+          ]
+        },
+        "LoginOwnerLambdaFunction": {
+          "Type": "AWS::Lambda::Function",
+          "Properties": {
+            "Code": {
+              "S3Bucket": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+              "S3Key": "serverless/pg-manager-backend/dev/1763834411558-2025-11-22T18:00:11.558Z/pg-manager-backend.zip"
+            },
+            "Handler": "src/auth.loginOwner",
+            "Runtime": "nodejs18.x",
+            "FunctionName": "pg-manager-backend-dev-loginOwner",
+            "MemorySize": 1024,
+            "Timeout": 6,
+            "Role": {
+              "Fn::GetAtt": [
+                "IamRoleLambdaExecution",
+                "Arn"
+              ]
+            }
+          },
+          "DependsOn": [
+            "LoginOwnerLogGroup"
+          ]
+        },
+        "AddTenantLambdaVersionMfjmq2B3d5Jb9jtMVPQK61rAkBYKnJm0I9QnjaLQxE": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "AddTenantLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "GetTenantsLambdaVersionKS8WXFe0qRWVxl3Ygyh4pSopHNvM06YXtL7Jz2k0": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "GetTenantsLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "GetTenantLambdaVersiony3OvtnANRyv7aw127M4fVLTL18nhigaoZUe52HPE0n4": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "GetTenantLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "UpdateTenantLambdaVersionyYgcvSgniJLGghBJFf8beqjurtQbEMpmQoC8AZfadc": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "UpdateTenantLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "DeleteTenantLambdaVersiontTnAcOLvovxY75VAgoB5YpAAc2mmaO4KuzOXCTxog": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "DeleteTenantLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "AddPaymentLambdaVersioncStRh7hsODpeQSXcEFEuFm0LqifuR5qWIAZstDTU": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "AddPaymentLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "GetPaymentsLambdaVersionp5XfWFUFHgpHRDdDouLb9HWGwpcEi6z6SGIGVvk8c": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "GetPaymentsLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "GetTenantPaymentsLambdaVersion30d93MliXhghZYqJGAYC6dkJd6HkHIEby21qFUqw": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "GetTenantPaymentsLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "UpdatePaymentLambdaVersionenRT3TZKWcKEY3bRWHxOGyN6eJMK1hZsHiXJ4r9A4FY": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "UpdatePaymentLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "DeletePaymentLambdaVersionse5VbUQJHj4Zs8TokUoRoghGEQMy7R31WSaJw3zZho": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "DeletePaymentLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "RegisterOwnerLambdaVersionfNaBc57eBxO8l6Mb4u2J4936gjLtuhQGCPI901h7E": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "RegisterOwnerLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "LoginOwnerLambdaVersionNJKHAvWrmZfI9eZzTdUuPWPogoWmIlpaU0IKTeYgMZM": {
+          "Type": "AWS::Lambda::Version",
+          "DeletionPolicy": "Retain",
+          "Properties": {
+            "FunctionName": {
+              "Ref": "LoginOwnerLambdaFunction"
+            },
+            "CodeSha256": "H9z8aagjjVyK3jkC+/au2nsHr2K8+3MMuXz6f0mCehM="
+          }
+        },
+        "HttpApi": {
+          "Type": "AWS::ApiGatewayV2::Api",
+          "Properties": {
+            "Name": "dev-pg-manager-backend",
+            "ProtocolType": "HTTP",
+            "CorsConfiguration": {
+              "AllowHeaders": [
+                "*"
+              ],
+              "AllowMethods": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "OPTIONS"
+              ],
+              "AllowOrigins": [
+                "*"
+              ]
+            }
+          }
+        },
+        "HttpApiStage": {
+          "Type": "AWS::ApiGatewayV2::Stage",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "StageName": "$default",
+            "AutoDeploy": true,
+            "DefaultRouteSettings": {
+              "DetailedMetricsEnabled": false
+            }
+          }
+        },
+        "AddTenantLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "AddTenantLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationAddTenant": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "AddTenantLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePostTenants": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "POST /tenants",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationAddTenant"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationAddTenant"
+        },
+        "GetTenantsLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "GetTenantsLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationGetTenants": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "GetTenantsLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRouteGetTenants": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "GET /tenants",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationGetTenants"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationGetTenants"
+        },
+        "GetTenantLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "GetTenantLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationGetTenant": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "GetTenantLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRouteGetTenantsTenantidVar": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "GET /tenants/{tenantId}",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationGetTenant"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationGetTenant"
+        },
+        "UpdateTenantLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "UpdateTenantLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationUpdateTenant": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "UpdateTenantLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePutTenantsTenantidVar": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "PUT /tenants/{tenantId}",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationUpdateTenant"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationUpdateTenant"
+        },
+        "DeleteTenantLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "DeleteTenantLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationDeleteTenant": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "DeleteTenantLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRouteDeleteTenantsTenantidVar": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "DELETE /tenants/{tenantId}",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationDeleteTenant"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationDeleteTenant"
+        },
+        "AddPaymentLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "AddPaymentLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationAddPayment": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "AddPaymentLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePostPayments": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "POST /payments",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationAddPayment"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationAddPayment"
+        },
+        "GetPaymentsLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "GetPaymentsLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationGetPayments": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "GetPaymentsLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRouteGetPayments": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "GET /payments",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationGetPayments"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationGetPayments"
+        },
+        "GetTenantPaymentsLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "GetTenantPaymentsLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationGetTenantPayments": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "GetTenantPaymentsLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRouteGetPaymentsTenantidVar": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "GET /payments/{tenantId}",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationGetTenantPayments"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationGetTenantPayments"
+        },
+        "UpdatePaymentLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "UpdatePaymentLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationUpdatePayment": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "UpdatePaymentLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePutPaymentsPaymentidVar": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "PUT /payments/{paymentId}",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationUpdatePayment"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationUpdatePayment"
+        },
+        "DeletePaymentLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "DeletePaymentLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationDeletePayment": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "DeletePaymentLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRouteDeletePaymentsPaymentidVar": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "DELETE /payments/{paymentId}",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationDeletePayment"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationDeletePayment"
+        },
+        "RegisterOwnerLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "RegisterOwnerLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationRegisterOwner": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "RegisterOwnerLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePostAuthRegister": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "POST /auth/register",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationRegisterOwner"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationRegisterOwner"
+        },
+        "LoginOwnerLambdaPermissionHttpApi": {
+          "Type": "AWS::Lambda::Permission",
+          "Properties": {
+            "FunctionName": {
+              "Fn::GetAtt": [
+                "LoginOwnerLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Action": "lambda:InvokeFunction",
+            "Principal": "apigateway.amazonaws.com",
+            "SourceArn": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":execute-api:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":",
+                  {
+                    "Ref": "AWS::AccountId"
+                  },
+                  ":",
+                  {
+                    "Ref": "HttpApi"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }
+        },
+        "HttpApiIntegrationLoginOwner": {
+          "Type": "AWS::ApiGatewayV2::Integration",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "IntegrationType": "AWS_PROXY",
+            "IntegrationUri": {
+              "Fn::GetAtt": [
+                "LoginOwnerLambdaFunction",
+                "Arn"
+              ]
+            },
+            "PayloadFormatVersion": "2.0",
+            "TimeoutInMillis": 30000
+          }
+        },
+        "HttpApiRoutePostAuthLogin": {
+          "Type": "AWS::ApiGatewayV2::Route",
+          "Properties": {
+            "ApiId": {
+              "Ref": "HttpApi"
+            },
+            "RouteKey": "POST /auth/login",
+            "Target": {
+              "Fn::Join": [
+                "/",
+                [
+                  "integrations",
+                  {
+                    "Ref": "HttpApiIntegrationLoginOwner"
+                  }
+                ]
+              ]
+            }
+          },
+          "DependsOn": "HttpApiIntegrationLoginOwner"
+        },
+        "PGTenants": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": "PGTenants",
+            "BillingMode": "PAY_PER_REQUEST",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "tenantId",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "tenantId",
+                "KeyType": "HASH"
+              }
+            ]
+          }
+        },
+        "PGPayments": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": "PGPayments",
+            "BillingMode": "PAY_PER_REQUEST",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "paymentId",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "paymentId",
+                "KeyType": "HASH"
+              }
+            ]
+          }
+        },
+        "PGOwner": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": "PGOwner",
+            "BillingMode": "PAY_PER_REQUEST",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "ownerId",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "ownerId",
+                "KeyType": "HASH"
+              }
+            ]
+          }
+        }
+      },
+      "Outputs": {
+        "ServerlessDeploymentBucketName": {
+          "Value": "serverless-framework-deployments-ap-south-1-4b6eb0aa-525c",
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-ServerlessDeploymentBucketName"
+          }
+        },
+        "AddTenantLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "AddTenantLambdaVersionMfjmq2B3d5Jb9jtMVPQK61rAkBYKnJm0I9QnjaLQxE"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-AddTenantLambdaFunctionQualifiedArn"
+          }
+        },
+        "GetTenantsLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "GetTenantsLambdaVersionKS8WXFe0qRWVxl3Ygyh4pSopHNvM06YXtL7Jz2k0"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-GetTenantsLambdaFunctionQualifiedArn"
+          }
+        },
+        "GetTenantLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "GetTenantLambdaVersiony3OvtnANRyv7aw127M4fVLTL18nhigaoZUe52HPE0n4"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-GetTenantLambdaFunctionQualifiedArn"
+          }
+        },
+        "UpdateTenantLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "UpdateTenantLambdaVersionyYgcvSgniJLGghBJFf8beqjurtQbEMpmQoC8AZfadc"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-UpdateTenantLambdaFunctionQualifiedArn"
+          }
+        },
+        "DeleteTenantLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "DeleteTenantLambdaVersiontTnAcOLvovxY75VAgoB5YpAAc2mmaO4KuzOXCTxog"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-DeleteTenantLambdaFunctionQualifiedArn"
+          }
+        },
+        "AddPaymentLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "AddPaymentLambdaVersioncStRh7hsODpeQSXcEFEuFm0LqifuR5qWIAZstDTU"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-AddPaymentLambdaFunctionQualifiedArn"
+          }
+        },
+        "GetPaymentsLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "GetPaymentsLambdaVersionp5XfWFUFHgpHRDdDouLb9HWGwpcEi6z6SGIGVvk8c"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-GetPaymentsLambdaFunctionQualifiedArn"
+          }
+        },
+        "GetTenantPaymentsLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "GetTenantPaymentsLambdaVersion30d93MliXhghZYqJGAYC6dkJd6HkHIEby21qFUqw"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-GetTenantPaymentsLambdaFunctionQualifiedArn"
+          }
+        },
+        "UpdatePaymentLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "UpdatePaymentLambdaVersionenRT3TZKWcKEY3bRWHxOGyN6eJMK1hZsHiXJ4r9A4FY"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-UpdatePaymentLambdaFunctionQualifiedArn"
+          }
+        },
+        "DeletePaymentLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "DeletePaymentLambdaVersionse5VbUQJHj4Zs8TokUoRoghGEQMy7R31WSaJw3zZho"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-DeletePaymentLambdaFunctionQualifiedArn"
+          }
+        },
+        "RegisterOwnerLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "RegisterOwnerLambdaVersionfNaBc57eBxO8l6Mb4u2J4936gjLtuhQGCPI901h7E"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-RegisterOwnerLambdaFunctionQualifiedArn"
+          }
+        },
+        "LoginOwnerLambdaFunctionQualifiedArn": {
+          "Description": "Current Lambda function version",
+          "Value": {
+            "Ref": "LoginOwnerLambdaVersionNJKHAvWrmZfI9eZzTdUuPWPogoWmIlpaU0IKTeYgMZM"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-LoginOwnerLambdaFunctionQualifiedArn"
+          }
+        },
+        "HttpApiId": {
+          "Description": "Id of the HTTP API",
+          "Value": {
+            "Ref": "HttpApi"
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-HttpApiId"
+          }
+        },
+        "HttpApiUrl": {
+          "Description": "URL of the HTTP API",
+          "Value": {
+            "Fn::Join": [
+              "",
+              [
+                "https://",
+                {
+                  "Ref": "HttpApi"
+                },
+                ".execute-api.",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ".",
+                {
+                  "Ref": "AWS::URLSuffix"
+                }
+              ]
+            ]
+          },
+          "Export": {
+            "Name": "sls-pg-manager-backend-dev-HttpApiUrl"
+          }
+        }
+      }
+    }
+  }
+}

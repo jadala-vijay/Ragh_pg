@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PG Manager — Floors & Beds</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* Theme (matching Payments page look) */
+    body {
+      background: linear-gradient(45deg,#020617,#0f172a 50%,#1e1b4b);
+      min-height:100vh;
+      color:#e6eef8;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Sidebar - FIXED, always visible (B1) */
+    .sidebar {
+      width: 280px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(14px);
+      border-right: 1px solid rgba(255,255,255,0.08);
+      padding: 28px 18px;
+      z-index: 50;
+      box-shadow: 4px 0 18px rgba(0,0,0,0.4);
+    }
+
+    .nav-item {
+      padding: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      color: #e5e7eb;
+      transition: 0.25s;
+    }
+    .nav-item:hover { background: rgba(59,130,246,0.08); transform: translateX(6px); }
+    .nav-item.active-page { background: rgba(59,130,246,0.18); border: 1px solid rgba(59,130,246,0.28); color:#60a5fa; font-weight:600; }
+
+    /* MAIN CONTENT - pushed right to account for fixed sidebar */
+    .content {
+      margin-left: 320px; /* leave comfortable space for the fixed sidebar */
+      padding: 40px 50px;
+      position: relative;
+      z-index: 20;
+      max-width: calc(100% - 340px);
+    }
+
+    /* Floating Building Image (visual only) */
+    .bg-building {
+      position: fixed;
+      right: 5%;
+      top: 12%;
+      width: 380px;
+      opacity: 0.8;
+      pointer-events: none;
+      filter: blur(1px);
+      z-index: 1;
+    }
+
+    /* Glass card / neon consistent with payments */
+    .glass-card {
+      background: rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 22px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 8px 40px rgba(3,6,23,0.6);
+    }
+    .neon {
+      box-shadow: 0 8px 28px rgba(59,130,246,0.10), 0 0 40px rgba(59,130,246,0.12) inset;
+    }
+
+    /* small utilities */
+    .ctl {
+      background: rgba(2,6,23,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: #e6eef8;
+      width:100%;
+    }
+    .ctl:focus { outline: none; border-color: rgba(59,130,246,0.9); box-shadow: 0 0 8px rgba(59,130,246,0.12); }
+
+    .pill { width:10px; height:10px; display:inline-block; border-radius:3px; margin-right:8px; }
+
+    /* bed boxes (kept consistent size) */
+    .bed {
+      width:56px;
+      height:44px;
+      border-radius:8px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      user-select:none;
+      font-weight:700;
+      transition: transform .12s ease, box-shadow .12s ease;
+      border:1px solid rgba(255,255,255,0.04);
+      background: rgba(255,255,255,0.02);
+      color:#e6eef8;
+      margin-right:6px;
+      margin-bottom:6px;
+    }
+    .bed:hover { transform: translateY(-6px); box-shadow: 0 8px 30px rgba(59,130,246,0.06); }
+
+    .bed.available {
+      background: linear-gradient(180deg, rgba(16,185,129,0.12), rgba(16,185,129,0.06));
+      border:1px solid rgba(34,197,94,0.22);
+      color:#b7f5d2;
+    }
+    .bed.occupied {
+      background: linear-gradient(180deg, rgba(239,68,68,0.10), rgba(239,68,68,0.04));
+      border:1px solid rgba(239,68,68,0.18);
+      color:#ffd6d6;
+    }
+
+    /* room card row */
+    .room-row { margin-bottom:16px; padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.04); display:flex; gap:18px; align-items:center; }
+    .room-meta { width:180px; }
+    .room-meta .title { font-weight:700; font-size:1rem; }
+    .room-meta .sub { color:#9aa7bd; font-size:13px; margin-top:6px; }
+
+    /* tooltip */
+    .tooltip {
+      position:fixed; z-index:80; display:none; pointer-events:none;
+      background: rgba(2,6,23,0.95); color:#cbd5e1; padding:10px 12px; border-radius:10px; font-size:13px;
+      border:1px solid rgba(255,255,255,0.04);
+    }
+
+    /* Modals */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:90; }
+    .modal { background:#0f172a; border-radius:12px; padding:20px; width:680px; max-width:95%; border:1px solid rgba(255,255,255,0.06); }
+
+    .preview-img { width:86px; height:86px; object-fit:cover; border-radius:8px; border:1px solid rgba(255,255,255,0.06); }
+
+    @media (max-width:900px){
+      .bg-building { display:none; }
+      .content { margin-left: 20px; padding: 20px; max-width: calc(100% - 40px); }
+      .room-meta { width:120px; }
+      .bed { width:48px; height:40px; }
+      .modal { width: 92%; padding:16px; }
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 220px; padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR (fixed, always visible — B1) -->
+  <aside class="sidebar">
+    <h2 class="text-xl font-semibold mb-6">Raghavendra PG</h2>
+    <div class="nav-item" onclick="location.href='dashboard.html'">📊 Dashboard</div>
+    <div class="nav-item" onclick="location.href='tenants.html'">👥 Tenants</div>
+    <div class="nav-item active-page" onclick="location.href='beds.html'">🛏 Beds</div>
+    <div class="nav-item" onclick="location.href='payments.html'">💰 Payments</div>
+  </aside>
+
+  <!-- FLOATING BUILDING (visual only) -->
+  <img class="bg-building" src="/mnt/data/f3faebb7-6f23-401f-8907-68f4ba94de61.png" alt="building" />
+
+  <!-- MAIN CONTENT (pushed right to match dashboard) -->
+  <main class="content">
+    <header class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-3xl font-extrabold mb-1">Raghavendra pg — Floor & Beds</h1>
+        <div class="text-sm" style="color:#9aa7bd">Interactive bed selection — occupancy driven from backend</div>
+      </div>
+
+      <div class="glass-card neon p-4" style="min-width:160px">
+        <div class="text-sm" style="color:#9aa7bd">Available Beds</div>
+        <div id="availableBeds" class="text-2xl font-bold">00</div>
+      </div>
+    </header>
+
+    <!-- floor tabs + content -->
+    <section class="grid grid-cols-3 gap-6 mb-8">
+      <div class="col-span-3 glass-card neon p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex gap-2">
+            <button data-floor="G" class="ctl px-4 py-2 rounded-lg bg-white/4 active">Ground</button>
+            <button data-floor="1" class="ctl px-4 py-2 rounded-lg bg-white/4">1</button>
+            <button data-floor="2" class="ctl px-4 py-2 rounded-lg bg-white/4">2</button>
+            <button data-floor="3" class="ctl px-4 py-2 rounded-lg bg-white/4">3</button>
+            <button data-floor="4" class="ctl px-4 py-2 rounded-lg bg-white/4">4</button>
+            <button data-floor="5" class="ctl px-4 py-2 rounded-lg bg-white/4">5</button>
+            <button data-floor="6" class="ctl px-4 py-2 rounded-lg bg-white/4">6</button>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="text-sm" style="color:#9aa7bd">Legend</div>
+            <div class="flex items-center gap-2"><span class="pill" style="background:#10b981"></span><div class="text-sm" style="color:#cbd5e1">Available</div></div>
+            <div class="flex items-center gap-2"><span class="pill" style="background:#ef4444"></span><div class="text-sm" style="color:#cbd5e1">Occupied</div></div>
+          </div>
+        </div>
+
+        <div id="mapArea"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="tooltip" class="tooltip"></div>
+
+  <!-- Assign modal -->
+  <div id="assignModal" class="modal-backdrop">
+    <div class="modal">
+      <h3 id="assignTitle" class="text-xl font-bold mb-3">Assign Bed</h3>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm text-gray-300">Selected Bed</label>
+          <div id="selBedText" class="ctl mt-1">—</div>
+        </div>
+
+        <div>
+          <label class="text-sm text-gray-300">Choose Tenant</label>
+          <select id="tenantSelect" class="ctl mt-1"></select>
+        </div>
+
+        <!-- Quick create -->
+        <div class="col-span-2">
+          <label class="text-sm text-gray-300">OR Create New Tenant (Quick)</label>
+          <div class="grid grid-cols-2 gap-2 mt-1">
+            <input id="quickName" class="ctl" placeholder="Full name">
+            <input id="quickPhone" class="ctl" placeholder="Phone">
+            <input id="quickRoom" class="ctl" placeholder="Room (auto filled)" readonly>
+            <input id="quickBed" class="ctl" placeholder="Bed (auto filled)" readonly>
+          </div>
+        </div>
+
+        <div class="col-span-2 flex justify-end gap-3 mt-3">
+          <button onclick="closeAssign()" class="px-4 py-2 bg-gray-600 rounded-lg">Cancel</button>
+          <button id="assignBtn" onclick="assignSelected()" class="px-4 py-2 bg-blue-600 rounded-lg">Assign</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile modal for occupied bed -->
+  <div id="profileModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="flex gap-4">
+        <div style="flex:1">
+          <h3 id="profileName" class="text-xl font-bold">Tenant Name</h3>
+          <div class="text-sm text-gray-300" id="profileMeta">Room 101 • Bed 1</div>
+          <div class="mt-3 text-sm">
+            <div><strong>Phone:</strong> <span id="profilePhone"></span></div>
+            <div class="mt-2"><strong>Address:</strong> <div id="profileAddress" class="text-sm text-gray-300 mt-1"></div></div>
+          </div>
+        </div>
+
+        <div style="width:110px">
+          <img id="profilePhoto" class="preview-img" src="/mnt/data/image.png" alt="profile">
+        </div>
+      </div>
+
+      <div class="mt-4 flex justify-between">
+        <div>
+          <button id="viewPaymentsBtn" onclick="openPaymentsForTenant()" class="px-4 py-2 bg-indigo-600 rounded-lg">View Payments</button>
+        </div>
+        <div>
+          <button onclick="closeProfile()" class="px-4 py-2 bg-gray-600 rounded-lg">Close</button>
+          <button id="freeBtn" onclick="freeBed()" class="px-4 py-2 bg-red-600 rounded-lg ml-2">Free Bed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ===========================
+   CONFIG
+   =========================== */
+const API_BASE = "https://vlqf2jbdvl.execute-api.ap-south-1.amazonaws.com";
+const building = {
+  "G": { rooms: [
+    { id: "GF-01", beds: 2, type: "tenant" },
+    { id: "GF-02", beds: 0, type: "kitchen" },
+    { id: "GF-03", beds: 0, type: "owner" }
+  ]},
+  "1": { rooms: [
+    { id: "101", beds: 2 },
+    { id: "102", beds: 3 },
+    { id: "103", beds: 3 },
+    { id: "104", beds: 2 },
+    { id: "105", beds: 3 },
+    { id: "106", beds: 3 }
+  ]},
+  "2": { rooms: [
+    { id: "201", beds: 2 },
+    { id: "202", beds: 3 },
+    { id: "203", beds: 3 },
+    { id: "204", beds: 2 },
+    { id: "205", beds: 3 },
+    { id: "206", beds: 3 }
+  ]},
+  "3": { rooms: [
+    { id: "301", beds: 2 },
+    { id: "302", beds: 3 },
+    { id: "303", beds: 3 },
+    { id: "304", beds: 2 },
+    { id: "305", beds: 3 },
+    { id: "306", beds: 3 }
+  ]},
+  "4": { rooms: [
+    { id: "401", beds: 2 },
+    { id: "402", beds: 3 },
+    { id: "403", beds: 3 },
+    { id: "404", beds: 2 },
+    { id: "405", beds: 3 },
+    { id: "406", beds: 3 }
+  ]},
+  "5": { rooms: [
+    { id: "501", beds: 2 },
+    { id: "502", beds: 3 },
+    { id: "503", beds: 3 },
+    { id: "504", beds: 2 },
+    { id: "505", beds: 3 },
+    { id: "506", beds: 3 }
+  ]},
+  "6": { rooms: [
+    { id: "601", beds: 2 },
+    { id: "602", beds: 3 },
+    { id: "603", beds: 3 }
+  ]},
+};
+
+/* occupancy will be seeded from backend tenants */
+const occupancy = {}; // key -> {occupied:bool, tenant: {tenantId,name,phone,room,bed,floor,...} }
+function key(f,r,b){ return `${f}-${r}-${b}`; }
+
+/* current floor visible */
+let currentFloor = 'G';
+
+/* DOM refs */
+const mapArea = document.getElementById('mapArea');
+const tooltip = document.getElementById('tooltip');
+const availableBedsEl = document.getElementById('availableBeds');
+
+/* Modals */
+const assignModal = document.getElementById('assignModal');
+const profileModal = document.getElementById('profileModal');
+
+/* assign state */
+let selectedAssign = { floor:null, room:null, bedIndex:null };
+
+/* profile state */
+let selectedProfileTenant = null;
+
+/* tenant list cached */
+let tenantsCache = [];
+
+/* ===========================
+   UTILITIES
+   =========================== */
+function showTooltip(x,y,html){
+  tooltip.style.left = (x+12) + 'px';
+  tooltip.style.top = (y+12) + 'px';
+  tooltip.innerHTML = html;
+  tooltip.style.display = 'block';
+}
+function hideTooltip(){ tooltip.style.display = 'none'; }
+
+/* tiny helper for fetch with basic error handling */
+async function api(path, opts){
+  try {
+    const res = await fetch(API_BASE + path, opts);
+    if(!res.ok){
+      const txt = await res.text().catch(()=>null);
+      throw new Error(txt || `HTTP ${res.status}`);
+    }
+    const json = await res.json().catch(()=>null);
+    return { ok:true, data: json };
+  } catch (err) {
+    return { ok:false, error: err.message || String(err) };
+  }
+}
+
+/* ===========================
+   LOAD TENANTS -> build occupancy map
+   =========================== */
+async function loadTenantsAndOccupancy(){
+  const res = await api('/tenants', { method: 'GET' });
+  tenantsCache = [];
+  // clear occupancy
+  Object.keys(occupancy).forEach(k=> delete occupancy[k]);
+
+  if(res.ok && Array.isArray(res.data)){
+    tenantsCache = res.data;
+    // build occupancy map from tenants: expects tenant.floor, tenant.room, tenant.bed (bed number 1-based)
+    tenantsCache.forEach(t => {
+      const f = t.floor || t.floorSel || null;
+      const room = t.room;
+      const bedNum = (t.bed !== undefined && t.bed !== null) ? Number(t.bed) : NaN;
+      if(f && room && Number.isFinite(bedNum)){
+        const bidx = bedNum - 1;
+        occupancy[key(f,room,bidx)] = { occupied: true, tenant: t };
+      }
+    });
+  } else {
+    // No backend/failure: keep occupancy demo (if any). But still continue.
+    console.warn('Could not load tenants from backend, using local occupancy demo if present.', res.error);
+  }
+}
+
+/* ===========================
+   RENDER FLOOR
+   =========================== */
+function renderFloor(f){
+  currentFloor = f;
+  const floor = building[f];
+  if(!floor) return;
+  mapArea.innerHTML = '';
+
+  const header = document.createElement('div');
+  header.className = 'flex items-center justify-between mb-4';
+  header.innerHTML = `<div class="text-lg"><strong>Floor:</strong> ${f==='G' ? 'Ground' : f+'th'}</div><div class="text-sm" style="color:#9aa7bd">Rooms: ${floor.rooms.length}</div>`;
+  mapArea.appendChild(header);
+
+  let availableCount = 0;
+
+  floor.rooms.forEach(room=>{
+    const row = document.createElement('div');
+    row.className = 'room-row';
+
+    const meta = document.createElement('div');
+    meta.className = 'room-meta';
+    meta.innerHTML = `<div class="title">${room.id}</div><div class="sub">${room.type || 'Tenant Rooms'}</div>`;
+
+    const bedsWrap = document.createElement('div');
+    bedsWrap.style.display = 'flex';
+    bedsWrap.style.flexWrap = 'wrap';
+    bedsWrap.style.gap = '10px';
+    bedsWrap.style.alignItems = 'center';
+
+    if(room.beds === 0){
+      const no = document.createElement('div');
+      no.className = 'text-sm';
+      no.style.color = '#9aa7bd';
+      no.textContent = 'No beds in this room';
+      bedsWrap.appendChild(no);
+    } else {
+      for(let b=0;b<room.beds;b++){
+        const k = key(f, room.id, b);
+        const occ = occupancy[k] && occupancy[k].occupied;
+        const bed = document.createElement('div');
+        bed.className = 'bed ' + (occ ? 'occupied' : 'available');
+        bed.textContent = (b+1);
+
+        // mouse handlers for tooltip
+        bed.addEventListener('mouseenter', (ev) => {
+          if(occ){
+            const t = occupancy[k].tenant || {};
+            showTooltip(ev.pageX, ev.pageY, `<strong>${t.name || 'Tenant'}</strong><br><small>Room ${room.id} • Bed ${b+1}</small>`);
+          } else {
+            showTooltip(ev.pageX, ev.pageY, `<strong>Available</strong><br><small>Click to assign</small>`);
+          }
+        });
+        bed.addEventListener('mousemove', (ev) => { tooltip.style.left = (ev.pageX+12)+'px'; tooltip.style.top = (ev.pageY+12)+'px'; });
+        bed.addEventListener('mouseleave', () => hideTooltip());
+
+        // click handlers: occupied -> show profile; available -> open assign
+        bed.addEventListener('click', async () => {
+          if(occupancy[k] && occupancy[k].occupied){
+            // show profile popup
+            openProfile(occupancy[k].tenant);
+          } else {
+            // open assign
+            openAssign({ floor: f, room: room.id, bedIndex: b });
+          }
+        });
+
+        bedsWrap.appendChild(bed);
+        if(!occ) availableCount++;
+      }
+    }
+
+    row.appendChild(meta);
+    row.appendChild(bedsWrap);
+    mapArea.appendChild(row);
+  });
+
+  /* set available count (floor-specific is not requested, app shows global available below anyway) */
+  // compute global available across all floors for the right-side card:
+  updateSummary();
+}
+
+/* ===========================
+   UPDATE SUMMARY (global available across all building)
+   =========================== */
+function updateSummary(){
+  let totalAvailable = 0;
+  Object.keys(building).forEach(f=>{
+    building[f].rooms.forEach(room=>{
+      for(let b=0;b<room.beds;b++){
+        const k = key(f,room.id,b);
+        if(!(occupancy[k] && occupancy[k].occupied)) totalAvailable++;
+      }
+    });
+  });
+  availableBedsEl.textContent = String(totalAvailable).padStart(2,'0');
+}
+
+/* ===========================
+   ASSIGN MODAL
+   =========================== */
+function openAssign(sel){
+  selectedAssign = sel;
+  document.getElementById('selBedText').innerText = `Floor ${sel.floor === 'G' ? 'Ground' : sel.floor}, Room ${sel.room}, Bed ${sel.bedIndex+1}`;
+  // fill quick-create fields room/bed
+  document.getElementById('quickRoom').value = sel.room;
+  document.getElementById('quickBed').value = String(sel.bedIndex+1);
+
+  // populate tenant select from tenantsCache (fresh)
+  const select = document.getElementById('tenantSelect');
+  select.innerHTML = '<option value="">Select existing tenant (or create new)</option>';
+  tenantsCache.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.tenantId || t.id || t.id;
+    opt.textContent = `${t.name} — ${t.room || 'no room'}`;
+    select.appendChild(opt);
+  });
+
+  assignModal.style.display = 'flex';
+}
+function closeAssign(){
+  assignModal.style.display = 'none';
+  document.getElementById('tenantSelect').value = '';
+  document.getElementById('quickName').value = '';
+  document.getElementById('quickPhone').value = '';
+}
+
+/* Assign button handler
+   - if existing tenant selected -> PUT tenant with new floor/room/bed
+   - else if quick create filled -> POST /tenants then assign (we pass floor/room/bed in the create payload)
+*/
+async function assignSelected(){
+  const existingId = document.getElementById('tenantSelect').value;
+  const qName = document.getElementById('quickName').value.trim();
+  const qPhone = document.getElementById('quickPhone').value.trim();
+  const { floor, room, bedIndex } = selectedAssign;
+  const bedNumber = bedIndex + 1;
+
+  // validation
+  if(!existingId && (!qName || !qPhone)){
+    alert('Select an existing tenant or fill Quick Create name & phone.');
+    return;
+  }
+
+  // Disable button while processing
+  const btn = document.getElementById('assignBtn');
+  btn.disabled = true;
+  btn.innerText = 'Processing...';
+
+  try {
+    let tenantId = existingId;
+    if(!tenantId){
+      // Quick-create: make a minimal tenant record and include floor/room/bed in payload
+      const payload = {
+        name: qName,
+        phone: qPhone,
+        room: room,
+        bed: bedNumber,
+        floor: floor,
+        rent: 0,
+        joinDate: new Date().toISOString()
+      };
+      const create = await api('/tenants', { method:'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      if(!create.ok){
+        throw new Error('Could not create tenant: ' + create.error);
+      }
+      tenantId = create.data && (create.data.data && create.data.data.tenantId || create.data.data?.id || create.data.tenantId) || create.data.tenantId || create.data.id;
+      // If backend returns created item different shape, fallback to find by name (we reload tenants below)
+    }
+
+    // assign bed: PUT /tenants/{tenantId}
+    const body = { floor: floor, room: room, bed: bedNumber };
+    const upd = await api(`/tenants/${tenantId}`, { method:'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if(!upd.ok){
+      throw new Error('Could not assign bed: ' + upd.error);
+    }
+
+    // reload backend tenants and UI
+    await refreshAllFromBackend();
+    closeAssign();
+  } catch (err) {
+    console.error(err);
+    alert('Error: ' + (err.message || err));
+  } finally {
+    btn.disabled = false;
+    btn.innerText = 'Assign';
+  }
+}
+
+/* ===========================
+   PROFILE MODAL (occupied bed)
+   =========================== */
+function openProfile(tenant){
+  if(!tenant) return;
+  selectedProfileTenant = tenant;
+
+  // fill profile UI
+  document.getElementById('profileName').innerText = tenant.name || 'Tenant';
+  document.getElementById('profileMeta').innerText = `Room ${tenant.room || '-'} • Bed ${tenant.bed || '-'}`;
+  document.getElementById('profilePhone').innerText = tenant.phone || '-';
+  document.getElementById('profileAddress').innerText = tenant.address || (tenant.permanentAddress || '-') ;
+  // preview image if base64 or url
+  if(tenant.photos && tenant.photos.profile) {
+    document.getElementById('profilePhoto').src = tenant.photos.profile;
+  } else if(tenant.profile) {
+    document.getElementById('profilePhoto').src = tenant.profile;
+  } else {
+    document.getElementById('profilePhoto').src = '/mnt/data/image.png';
+  }
+
+  profileModal.style.display = 'flex';
+}
+
+function closeProfile(){
+  profileModal.style.display = 'none';
+  selectedProfileTenant = null;
+}
+
+/* Free bed: set tenant's room/bed/floor to empty or null */
+async function freeBed(){
+  if(!selectedProfileTenant || !selectedProfileTenant.tenantId) {
+    alert('No tenant selected.');
+    return;
+  }
+  if(!confirm('Free this bed (unassign). This will remove room & bed from tenant record)?')) return;
+
+  const btn = document.getElementById('freeBtn');
+  btn.disabled = true;
+  btn.innerText = 'Processing...';
+
+  try {
+    const tid = selectedProfileTenant.tenantId;
+    const upd = await api(`/tenants/${tid}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ floor: '', room: '', bed: '' }) });
+    if(!upd.ok) throw new Error(upd.error);
+    await refreshAllFromBackend();
+    closeProfile();
+  } catch (err) {
+    console.error(err);
+    alert('Error freeing bed: ' + (err.message || err));
+  } finally {
+    btn.disabled = false;
+    btn.innerText = 'Free Bed';
+  }
+}
+
+/* Quick navigation to payments (optional) */
+function openPaymentsForTenant(){
+  if(!selectedProfileTenant) return;
+  // If you have payments UI, you could navigate and pass tenant id; simple approach: open payments.html with query param
+  window.location.href = `payments.html?tenantId=${selectedProfileTenant.tenantId || ''}`;
+}
+
+/* ===========================
+   REFRESH function: reload tenants & rerender current floor
+   =========================== */
+async function refreshAllFromBackend(){
+  await loadTenantsAndOccupancy();
+  // re-render current floor
+  renderFloor(currentFloor);
+  updateSummary();
+}
+
+/* ===========================
+   TABS wiring
+   =========================== */
+document.querySelectorAll('[data-floor]').forEach(btn=>{
+  btn.addEventListener('click', async () => {
+    document.querySelectorAll('[data-floor]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderFloor(btn.getAttribute('data-floor'));
+  });
+});
+
+/* ===========================
+   INITIALIZATION
+   =========================== */
+(async function init(){
+  // Seed demo occupancy lightly if backend fails to return data
+  // (these will be overwritten if backend returns real tenants)
+  occupancy[key('1','102',1)] = {occupied:true, tenant:{ name:'Rahul', tenantId:'demo-rahul', room:'102', bed:2, floor:'1' }};
+  occupancy[key('1','103',2)] = {occupied:true, tenant:{ name:'Kiran', tenantId:'demo-kiran', room:'103', bed:3, floor:'1' }};
+  occupancy[key('2','201',0)] = {occupied:true, tenant:{ name:'Aman', tenantId:'demo-aman', room:'201', bed:1, floor:'2' }};
+  occupancy[key('6','602',1)] = {occupied:true, tenant:{ name:'Suresh', tenantId:'demo-suresh', room:'602', bed:2, floor:'6' }};
+
+  // Fetch backend tenants & populate occupancy
+  await refreshAllFromBackend();
+
+  // Render default floor (Ground)
+  renderFloor('G');
+
+  // hide tooltip on scroll/resize
+  window.addEventListener('scroll', ()=> tooltip.style.display='none');
+  window.addEventListener('resize', ()=> tooltip.style.display='none');
+})();
+</script>
+</body>
+</html>

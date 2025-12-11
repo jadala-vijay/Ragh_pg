@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <title>PG Manager - Login</title>
+
+  <style>
+    body {
+      background: linear-gradient(45deg, #020617, #0f172a, #1e1b4b, #0f172a);
+      background-size: 400% 400%;
+      animation: gradientFlow 12s ease infinite;
+    }
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .neon-box { box-shadow: 0 0 15px #3b82f6, 0 0 30px #1d4ed8; }
+    .neon-input { box-shadow: 0 0 8px rgba(59,130,246,0.4); }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center text-white p-6">
+
+  <div class="glass rounded-3xl p-10 w-[380px] bg-white/10 backdrop-blur-xl neon-box">
+    <h1 class="text-4xl font-extrabold text-center mb-2">Raghavendra PG</h1>
+    <p class="text-center text-gray-300 mb-8">Secure Login Portal</p>
+
+    <div class="space-y-6">
+      <div>
+        <label class="text-sm text-gray-300">Email</label>
+        <input id="email" type="text" class="neon-input w-full mt-2 p-3 rounded-xl bg-gray-900 border border-gray-700 focus:border-blue-500" placeholder="Enter your email">
+      </div>
+
+      <div>
+        <label class="text-sm text-gray-300">Password</label>
+        <input id="password" type="password" class="neon-input w-full mt-2 p-3 rounded-xl bg-gray-900 border border-gray-700 focus:border-blue-500" placeholder="Enter password">
+      </div>
+    </div>
+
+    <p id="msg" class="text-center text-red-400 text-sm mt-4"></p>
+
+    <button onclick="login()" class="w-full mt-8 py-3 text-lg font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 neon-box">
+      Login
+    </button>
+
+    <p class="text-center text-gray-400 mt-6 text-sm">© 2025 Raghavendra Luxury PG</p>
+  </div>
+
+<script>
+  /* 👇 FINAL FIXED AWS API BASE URL */
+  const API_BASE = "https://vlqf2jbdvl.execute-api.ap-south-1.amazonaws.com";
+
+  async function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const msg = document.getElementById("msg");
+
+    msg.textContent = "";
+
+    if (!email || !password) {
+      msg.textContent = "Enter email and password";
+      return;
+    }
+
+    try {
+      console.log("Sending login request to:", `${API_BASE}/auth/login`);
+
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      console.log("Response status:", res.status);
+
+      const data = await res.json();
+      console.log("Response JSON:", data);
+
+      if (!res.ok) {
+        msg.textContent = data.error || "Invalid login";
+        return;
+      }
+
+      localStorage.setItem("pg_token", data.token);
+      localStorage.setItem("pg_owner", JSON.stringify(data.owner));
+
+      window.location.href = "dashboard.html";
+
+    } catch (err) {
+      console.error("Login error:", err);
+      msg.textContent = "Network error ― Check API URL";
+    }
+  }
+</script>
+
+</body>
+</html>

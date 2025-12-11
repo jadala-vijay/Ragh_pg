@@ -1,0 +1,166 @@
+service: pg-manager-backend
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-south-1
+  stage: dev
+
+  # 🔥 GLOBAL CORS FIX FOR ALL ROUTES (IMPORTANT)
+  httpApi:
+    cors:
+      allowedOrigins:
+        - "*"
+      allowedHeaders:
+        - "*"
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:Scan
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - arn:aws:dynamodb:ap-south-1:*:table/PGTenants
+        - arn:aws:dynamodb:ap-south-1:*:table/PGPayments
+        - arn:aws:dynamodb:ap-south-1:*:table/PGOwner
+
+plugins:
+  - serverless-offline
+
+functions:
+
+  # ---------- TENANTS ----------
+  addTenant:
+    handler: src/tenants.addTenant
+    events:
+      - httpApi:
+          path: /tenants
+          method: post
+
+  getTenants:
+    handler: src/tenants.getTenants
+    events:
+      - httpApi:
+          path: /tenants
+          method: get
+
+  getTenant:
+    handler: src/tenants.getTenant
+    events:
+      - httpApi:
+          path: /tenants/{tenantId}
+          method: get
+
+  updateTenant:
+    handler: src/tenants.updateTenant
+    events:
+      - httpApi:
+          path: /tenants/{tenantId}
+          method: put
+
+  deleteTenant:
+    handler: src/tenants.deleteTenant
+    events:
+      - httpApi:
+          path: /tenants/{tenantId}
+          method: delete
+
+  # ---------- PAYMENTS ----------
+  addPayment:
+    handler: src/payments.addPayment
+    events:
+      - httpApi:
+          path: /payments
+          method: post
+
+  getPayments:
+    handler: src/payments.getPayments
+    events:
+      - httpApi:
+          path: /payments
+          method: get
+
+  getTenantPayments:
+    handler: src/payments.getTenantPayments
+    events:
+      - httpApi:
+          path: /payments/{tenantId}
+          method: get
+
+  updatePayment:
+    handler: src/payments.updatePayment
+    events:
+      - httpApi:
+          path: /payments/{paymentId}
+          method: put
+
+  deletePayment:
+    handler: src/payments.deletePayment
+    events:
+      - httpApi:
+          path: /payments/{paymentId}
+          method: delete
+
+  # ---------- AUTH ----------
+  registerOwner:
+    handler: src/auth.registerOwner
+    events:
+      - httpApi:
+          path: /auth/register
+          method: post
+
+  loginOwner:
+    handler: src/auth.loginOwner
+    events:
+      - httpApi:
+          path: /auth/login
+          method: post
+
+resources:
+  Resources:
+
+    PGTenants:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: PGTenants
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: tenantId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tenantId
+            KeyType: HASH
+
+    PGPayments:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: PGPayments
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: paymentId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: paymentId
+            KeyType: HASH
+
+    PGOwner:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: PGOwner
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: ownerId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ownerId
+            KeyType: HASH

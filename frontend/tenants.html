@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PG Manager — Tenants</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --glass-bg: rgba(255,255,255,0.04);
+      --card-bg: rgba(255,255,255,0.06);
+      --accent: #2563eb;
+    }
+    html,body{height:100%}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(45deg,#020617,#0f172a 50%,#1e1b4b);
+      color: #e6eef8;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    /* sidebar */
+    .sidebar{
+      width: 280px;
+      position: fixed;
+      left:0; top:0; bottom:0;
+      padding: 28px 20px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(14px);
+      border-right: 1px solid rgba(255,255,255,0.06);
+      z-index:40;
+    }
+    .nav-btn{ padding:12px;border-radius:12px;display:flex;align-items:center;gap:12px;color:#e5e7eb; cursor:pointer}
+    .nav-btn.active{ background: rgba(59,130,246,0.28); border:1px solid rgba(59,130,246,0.45); color:#60a5fa; font-weight:600 }
+
+    /* main area */
+    .main { margin-left:300px; padding:40px; min-height:100vh }
+
+    .glass {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 40px rgba(3,6,23,0.6);
+    }
+
+    /* TABLE FIXED LAYOUT */
+    table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+    thead th { text-align: left; font-weight: 600; color: #d1d9e3; padding: 12px; }
+    tbody td { padding: 14px 12px; color: #d8e3f3; vertical-align: middle; }
+    tr + tr { border-top: 1px solid rgba(255,255,255,0.03); }
+    .col-name{ width: 28%; white-space: nowrap; overflow:hidden; text-overflow: ellipsis; }
+    .col-phone{ width: 16%; }
+    .col-room{ width: 10%; text-align:center }
+    .col-bed{ width: 8%; text-align:center }
+    .col-rent{ width: 12%; text-align:right; padding-right:18px }
+    .col-actions{ width: 14%; text-align:center }
+
+    /* modal full-screen */
+    .modal-overlay {
+      position: fixed; inset:0; background: rgba(2,6,23,0.72);
+      backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      z-index: 120;
+      padding: 30px;
+    }
+    .modal-overlay.show { display:flex; }
+    .modal-card {
+      width: min(700px, 96%);
+      max-height: calc(100vh - 120px);
+      overflow: auto;
+      background: #0b1220;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 22px;
+      box-shadow: 0 14px 60px rgba(2,6,23,0.7);
+    }
+
+    /* two-column grid */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid .full { grid-column: 1 / -1; }
+
+    .input-box {
+      width: 100%;
+      padding: 10px 12px;
+      background: #07101a;
+      border: 1px solid rgba(100,116,139,0.14);
+      border-radius: 10px;
+      color: #e6eef8;
+      outline: none;
+    }
+    .input-box:focus { box-shadow: 0 0 8px rgba(37,99,235,0.12); border-color: rgba(37,99,235,0.4) }
+
+    .btn {
+      background: var(--accent);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn.ghost { background: rgba(255,255,255,0.06); color: #d6e0f2; border: 1px solid rgba(255,255,255,0.04) }
+
+    .file-preview { width:70px; height:70px; border-radius:8px; object-fit:cover; border:1px solid rgba(255,255,255,0.06) }
+
+    .muted { color:#9aa7bd; font-size:13px }
+    .actions a { margin:0 8px; cursor:pointer; text-decoration:underline }
+    .top-right-note { position: absolute; right: 48px; top: 24px; background: rgba(255,255,255,0.04); border-radius: 12px; padding:10px 14px; color:#cbd5e1; font-size:13px; border:1px solid rgba(255,255,255,0.03) }
+
+    @media (max-width:900px){
+      .form-grid{ grid-template-columns: 1fr; }
+      .col-name{ width: 34% }
+      .main{ padding:20px; margin-left:0 }
+      .sidebar{ display:none }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2 class="text-xl font-extrabold mb-6">Raghavendra PG</h2>
+
+    <div class="nav-btn" onclick="location.href='dashboard.html'">📊 Dashboard</div>
+    <div class="nav-btn active" onclick="location.href='tenants.html'">👥 Tenants</div>
+    <div class="nav-btn" onclick="location.href='beds.html'">🛏 Beds</div>
+    <div class="nav-btn" onclick="location.href='payments.html'">💰 Payments</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-4xl font-bold">Tenants</h1>
+        <div class="muted mt-1">Manage tenant records — kept minimal to match backend</div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button class="btn" onclick="openAddModal()">+ Add Tenant</button>
+      </div>
+    </div>
+
+    <div class="glass">
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-name">Name</th>
+              <th class="col-phone">Phone</th>
+              <th class="col-room">Room</th>
+              <th class="col-bed">Bed</th>
+              <th class="col-rent">Rent</th>
+              <th class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tenantTable">
+            <!-- rows populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal overlay -->
+  <div id="modalOverlay" class="modal-overlay" onclick="overlayClick(event)">
+    <div class="modal-card" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-center mb-3">
+        <div>
+          <h2 id="modalTitle" class="text-2xl font-bold">Add Tenant</h2>
+          <div class="muted mt-1" id="modalSub">Only fields supported by backend are sent</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button class="btn ghost" onclick="closeModal()">Cancel</button>
+          <button id="saveBtn" class="btn" onclick="saveTenant()">Save</button>
+        </div>
+      </div>
+
+      <div id="modalMsg" class="muted mb-2"></div>
+
+      <form id="tenantForm" onsubmit="event.preventDefault()" novalidate>
+        <div class="form-grid">
+
+          <div>
+            <label class="muted">Name</label>
+            <input id="name" class="input-box" autocomplete="name" />
+          </div>
+
+          <div>
+            <label class="muted">Phone</label>
+            <input id="phone" class="input-box" autocomplete="tel" />
+          </div>
+
+          <div>
+            <label class="muted">Join Date</label>
+            <input id="joinDate" type="date" class="input-box" />
+          </div>
+
+          <div>
+            <label class="muted">Room (e.g. 101)</label>
+            <input id="room" class="input-box" />
+          </div>
+
+          <div>
+            <label class="muted">Bed (number)</label>
+            <input id="bed" type="number" class="input-box" min="1" />
+          </div>
+
+          <div>
+            <label class="muted">Rent (INR)</label>
+            <input id="rent" type="number" class="input-box" min="0" />
+          </div>
+
+          <!-- file selectors: we only send filenames (no upload) -->
+          <div>
+            <label class="muted">Aadhaar Front (optional)</label>
+            <input id="aadhaarF" type="file" accept="image/*" class="input-box" />
+            <div class="mt-2"><img id="aadhaarFPreview" class="file-preview" /></div>
+          </div>
+
+          <div>
+            <label class="muted">Aadhaar Back (optional)</label>
+            <input id="aadhaarB" type="file" accept="image/*" class="input-box" />
+            <div class="mt-2"><img id="aadhaarBPreview" class="file-preview" /></div>
+          </div>
+
+          <div class="full">
+            <label class="muted">Profile Photo (optional)</label>
+            <input id="photo" type="file" accept="image/*" class="input-box" />
+            <div class="mt-2"><img id="photoPreview" class="file-preview" /></div>
+          </div>
+
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+<script>
+/* ==============================
+   CONFIG
+   ============================== */
+const API_BASE = "https://vlqf2jbdvl.execute-api.ap-south-1.amazonaws.com";
+let EDIT_ID = null;
+const modalOverlay = document.getElementById('modalOverlay');
+const saveBtn = document.getElementById('saveBtn');
+const modalMsg = document.getElementById('modalMsg');
+
+const tenantTable = document.getElementById('tenantTable');
+
+/* file inputs + previews */
+const photo = document.getElementById('photo');
+const photoPreview = document.getElementById('photoPreview');
+const aadhaarF = document.getElementById('aadhaarF');
+const aadhaarFPreview = document.getElementById('aadhaarFPreview');
+const aadhaarB = document.getElementById('aadhaarB');
+const aadhaarBPreview = document.getElementById('aadhaarBPreview');
+
+/* helper: show image preview (local only) */
+function attachFilePreview(fileInput, previewImg){
+  fileInput.addEventListener('change', (ev) => {
+    const f = ev.target.files && ev.target.files[0];
+    if(!f){ previewImg.src = ''; return; }
+    previewImg.src = URL.createObjectURL(f);
+  });
+}
+attachFilePreview(photo, photoPreview);
+attachFilePreview(aadhaarF, aadhaarFPreview);
+attachFilePreview(aadhaarB, aadhaarBPreview);
+
+function resetForm(){
+  EDIT_ID = null;
+  document.getElementById('tenantForm').reset();
+  modalMsg.innerText = '';
+  photoPreview.src = '';
+  aadhaarFPreview.src = '';
+  aadhaarBPreview.src = '';
+}
+
+/* modal controls */
+function openAddModal(){
+  resetForm();
+  modalOverlay.classList.add('show');
+  document.getElementById('modalTitle').innerText = 'Add Tenant';
+  document.getElementById('modalSub').innerText = 'Fill the required fields and Save';
+  setTimeout(()=> document.getElementById('name').focus(), 120);
+}
+function closeModal(){
+  modalOverlay.classList.remove('show');
+  resetForm();
+}
+function overlayClick(ev){
+  closeModal();
+}
+window.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape' && modalOverlay.classList.contains('show')) closeModal();
+});
+
+/* ==============================
+   CRUD functions
+   ============================== */
+
+async function loadTenants(){
+  tenantTable.innerHTML = `<tr><td colspan="6" class="muted">Loading…</td></tr>`;
+  try {
+    const res = await fetch(`${API_BASE}/tenants`);
+    // backend returns JSON array directly (response body)
+    const data = await res.json();
+    renderTenantRows(Array.isArray(data) ? data : []);
+  } catch(err){
+    console.error('Load tenants error', err);
+    tenantTable.innerHTML = `<tr><td colspan="6" class="muted">Error loading tenants</td></tr>`;
+  }
+}
+
+function renderTenantRows(list){
+  if(!list || list.length === 0){
+    tenantTable.innerHTML = `<tr><td colspan="6" class="muted">No tenants</td></tr>`;
+    return;
+  }
+  tenantTable.innerHTML = '';
+  list.forEach(t => {
+    const tr = document.createElement('tr');
+
+    // safe read
+    const name = t.name || '';
+    const phone = t.phone || '';
+    const room = t.room || '';
+    const bed = (t.bed !== undefined && t.bed !== null) ? String(t.bed) : '';
+    const rent = t.rent || '';
+
+    tr.innerHTML = `
+      <td class="col-name">${escapeHtml(name)}</td>
+      <td class="col-phone">${escapeHtml(phone)}</td>
+      <td class="col-room">${escapeHtml(room)}</td>
+      <td class="col-bed">${escapeHtml(bed)}</td>
+      <td class="col-rent">₹${escapeHtml(rent)}</td>
+      <td class="col-actions">
+        <span class="actions">
+          <a class="text-blue-400" onclick="editTenant('${t.tenantId || ''}')">Edit</a> |
+          <a class="text-red-400" onclick="deleteTenant('${t.tenantId || ''}')">Delete</a>
+        </span>
+      </td>
+    `;
+    tenantTable.appendChild(tr);
+  });
+}
+
+function escapeHtml(s){
+  if(!s) return '';
+  return String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+}
+
+/* Save tenant (POST or PUT) — matches backend fields only */
+async function saveTenant(){
+  modalMsg.innerText = '';
+  const nameVal = document.getElementById('name').value.trim();
+  const phoneVal = document.getElementById('phone').value.trim();
+  const roomVal = document.getElementById('room').value.trim();
+  const bedVal = document.getElementById('bed').value.trim();
+  const rentVal = document.getElementById('rent').value;
+  const joinDateVal = document.getElementById('joinDate').value || '';
+
+  // required fields check (minimal)
+  if(!nameVal || !phoneVal || !roomVal || !bedVal){
+    modalMsg.innerText = 'Please fill Name, Phone, Room and Bed.';
+    return;
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.innerText = 'Saving...';
+
+  // filenames only (no upload implemented)
+  const payload = {
+    name: nameVal,
+    phone: phoneVal,
+    room: roomVal,
+    bed: bedVal,
+    rent: rentVal || '',
+    joinDate: joinDateVal || '',
+    aadhaarFront: aadhaarF.files[0] ? aadhaarF.files[0].name : '',
+    aadhaarBack: aadhaarB.files[0] ? aadhaarB.files[0].name : '',
+    profile: photo.files[0] ? photo.files[0].name : ''
+  };
+
+  try {
+    const method = EDIT_ID ? 'PUT' : 'POST';
+    const url = EDIT_ID ? `${API_BASE}/tenants/${EDIT_ID}` : `${API_BASE}/tenants`;
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    // show message if backend returns one
+    if(json && json.message) modalMsg.innerText = json.message;
+    await loadTenants();
+    setTimeout(()=> closeModal(), 600);
+  } catch(err){
+    console.error('Save failed', err);
+    modalMsg.innerText = 'Save failed — check console.';
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerText = 'Save';
+  }
+}
+
+/* Edit tenant — load single tenant and populate form */
+async function editTenant(id){
+  if(!id) return alert('Invalid tenant id');
+  try {
+    const res = await fetch(`${API_BASE}/tenants/${id}`);
+    const t = await res.json();
+    if(!t || !t.tenantId){
+      alert('Tenant not found');
+      return;
+    }
+    EDIT_ID = t.tenantId;
+    document.getElementById('modalTitle').innerText = 'Edit Tenant';
+    document.getElementById('modalSub').innerText = 'Update and Save';
+
+    document.getElementById('name').value = t.name || '';
+    document.getElementById('phone').value = t.phone || '';
+    document.getElementById('room').value = t.room || '';
+    document.getElementById('bed').value = t.bed || '';
+    document.getElementById('rent').value = t.rent || '';
+    document.getElementById('joinDate').value = t.joinDate || '';
+
+    // previews (if backend stored filenames/urls)
+    photoPreview.src = t.profile || '';
+    aadhaarFPreview.src = t.aadhaarFront || '';
+    aadhaarBPreview.src = t.aadhaarBack || '';
+
+    modalOverlay.classList.add('show');
+    setTimeout(()=> document.getElementById('name').focus(), 120);
+  } catch(err){
+    console.error('Could not load tenant for edit', err);
+    alert('Could not load tenant data.');
+  }
+}
+
+/* Delete tenant */
+async function deleteTenant(id){
+  if(!id) return;
+  if(!confirm('Delete this tenant?')) return;
+  try {
+    await fetch(`${API_BASE}/tenants/${id}`, { method: 'DELETE' });
+    await loadTenants();
+  } catch(err){
+    console.error('Delete failed', err);
+    alert('Delete failed — check console.');
+  }
+}
+
+/* INIT */
+resetForm();
+loadTenants();
+
+</script>
+</body>
+</html>
