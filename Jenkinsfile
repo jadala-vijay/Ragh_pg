@@ -22,7 +22,7 @@ pipeline {
         stage('Install Serverless Locally') {
             steps {
                 dir('pg_backend') {
-                    sh 'npm install serverless'
+                    sh 'npm install serverless --save-dev'
                 }
             }
         }
