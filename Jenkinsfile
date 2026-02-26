@@ -6,7 +6,8 @@ pipeline {
         stage('Clone Code') {
             steps {
                 echo 'Cloning Repository...'
-                git 'https://github.com/jadala-vijay/Ragh_pg.git'
+                git branch: 'main',
+                    url: 'https://github.com/jadala-vijay/Ragh_pg.git'
             }
         }
 
