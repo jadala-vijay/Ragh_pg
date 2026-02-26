@@ -11,22 +11,30 @@ pipeline {
             }
         }
 
+        stage('Install Dependencies') {
+            steps {
+                echo 'Installing npm packages...'
+                dir('pg_backend') {
+                    sh 'npm install'
+                }
+            }
+        }
+
         stage('Build') {
             steps {
-                echo 'Build Started...'
-                sh 'ls -la'
+                echo 'Building Application...'
+                dir('pg_backend') {
+                    sh 'npm run build || echo "No build script"'
+                }
             }
         }
 
-        stage('Test') {
+        stage('Run App') {
             steps {
-                echo 'Testing Application...'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deployment Successful 🚀'
+                echo 'Starting Application...'
+                dir('pg_backend') {
+                    sh 'npm start || echo "No start script"'
+                }
             }
         }
     }
