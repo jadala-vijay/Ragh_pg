@@ -13,27 +13,22 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                echo 'Installing npm packages...'
                 dir('pg_backend') {
                     sh 'npm install'
                 }
             }
         }
 
-        stage('Build') {
+        stage('Install Serverless CLI') {
             steps {
-                echo 'Building Application...'
-                dir('pg_backend') {
-                    sh 'npm run build || echo "No build script"'
-                }
+                sh 'npm install -g serverless'
             }
         }
 
-        stage('Run App') {
+        stage('Deploy to AWS') {
             steps {
-                echo 'Starting Application...'
                 dir('pg_backend') {
-                    sh 'npm start || echo "No start script"'
+                    sh 'serverless deploy'
                 }
             }
         }
