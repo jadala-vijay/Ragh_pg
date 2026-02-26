@@ -19,16 +19,18 @@ pipeline {
             }
         }
 
-        stage('Install Serverless CLI') {
+        stage('Install Serverless Locally') {
             steps {
-                sh 'npm install -g serverless'
+                dir('pg_backend') {
+                    sh 'npm install serverless'
+                }
             }
         }
 
         stage('Deploy to AWS') {
             steps {
                 dir('pg_backend') {
-                    sh 'serverless deploy'
+                    sh 'npx serverless deploy'
                 }
             }
         }
